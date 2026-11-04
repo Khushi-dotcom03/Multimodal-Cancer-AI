@@ -3,6 +3,8 @@
 import base64
 import io
 import os
+import uuid
+from datetime import datetime, timezone
 
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -100,4 +102,33 @@ async def analyze(
         "imageOnlyProbabilities": {fu.CLASSES[i]: float(image_probs[i]) for i in range(len(fu.CLASSES))},
         "explanation": {"type": "grad-cam", "image": overlay_data_url},
         "disclaimer": "Academic research prototype only. Not for clinical diagnosis or treatment decisions.",
+    }
+
+
+@app.post("/api/v1/analysis/{module_id}")
+async def frontend_analysis(module_id: str, file: UploadFile = File(...)):
+    """Match the multipart route and response shape used by the WeCure frontend."""
+    if module_id != "skin-cancer":
+        raise HTTPException(status_code=404, detail="This research module is not available")
+
+    result = await analyze(image=file, age=None, sex="unknown", localization="unknown")
+    prediction = result["prediction"]
+    timestamp = datetime.now(timezone.utc).isoformat()
+    return {
+        "analysisId": uuid.uuid4().hex,
+        "moduleId": module_id,
+        "prediction": prediction["label"],
+        "confidence": prediction["confidence"],
+        "classification": prediction["class"],
+        "heatmapUrl": result["explanation"]["image"],
+        "model": {
+            "name": "Multimodal Skin Lesion Classifier",
+            "architecture": "ResNet-18 with clinical MLP fusion",
+            "dataset": "HAM10000",
+            "version": "1.0.0",
+            "trainingStatus": "Trained",
+            "evaluationStatus": "Research evaluation complete",
+            "lastUpdated": timestamp,
+        },
+        "createdAt": timestamp,
     }

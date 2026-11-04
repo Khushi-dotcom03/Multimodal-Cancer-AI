@@ -37,6 +37,7 @@ uvicorn api:app --host 0.0.0.0 --port 8000
 
 - `GET /health` reports whether the model loaded.
 - `POST /api/analyze` accepts multipart form fields `image` (JPEG/PNG), optional `age`, `sex`, and `localization`. Metadata defaults to `unknown` when omitted.
+- `POST /api/v1/analysis/skin-cancer` accepts the frontend's multipart `file` field and returns the result format it expects.
 - The JSON response includes the fusion prediction, seven class probabilities, image-only probabilities, a Grad-CAM overlay data URL, and the research disclaimer.
 - Set `FRONTEND_ORIGIN` to the deployed frontend origin and `MODEL_DIR` if the model files live elsewhere. The API keeps uploaded images in memory and does not save them.
 
