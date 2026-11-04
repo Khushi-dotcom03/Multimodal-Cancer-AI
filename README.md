@@ -26,6 +26,24 @@ Grad-CAM examples: `results/gradcam_examples.png`, `results/gradcam_errors.png`
 
 Models are loaded from `models/` (`resnet18_best.pth`, `fusion_best.pth`, `clinical_preprocessor.joblib`).
 
+## Connect the WeCure web frontend
+
+`api.py` provides a REST API for `https://wecure-five.vercel.app`:
+
+```bash
+pip install -r requirements.txt
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
+- `GET /health` reports whether the model loaded.
+- `POST /api/analyze` accepts multipart form fields `image` (JPEG/PNG), optional `age`, `sex`, and `localization`. Metadata defaults to `unknown` when omitted.
+- The JSON response includes the fusion prediction, seven class probabilities, image-only probabilities, a Grad-CAM overlay data URL, and the research disclaimer.
+- Set `FRONTEND_ORIGIN` to the deployed frontend origin and `MODEL_DIR` if the model files live elsewhere. The API keeps uploaded images in memory and does not save them.
+
+For the frontend to use the API, configure its backend base URL to the deployed API origin, check `GET /health` for connection status, and submit the analysis form to `POST /api/analyze`. The frontend source is maintained separately from this repository, so its deployment configuration must be updated in that frontend project.
+
+The API is a research prototype. Its predictions must not be used for clinical diagnosis or treatment decisions.
+
 ## Repo structure
 - `app.py`, `fusion_utils.py`: Streamlit app, model classes, Grad-CAM
 - `models/`: trained weights and preprocessor

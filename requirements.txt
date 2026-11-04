@@ -7,3 +7,6 @@ numpy
 pillow
 matplotlib
 joblib
+fastapi
+uvicorn[standard]
+python-multipart
