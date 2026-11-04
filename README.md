@@ -28,7 +28,7 @@ Models are loaded from `models/` (`resnet18_best.pth`, `fusion_best.pth`, `clini
 
 ## Connect the WeCure web frontend
 
-`api.py` provides a REST API for `https://wecure-five.vercel.app`:
+The Next.js frontend is in `frontend/`. `api.py` provides the REST API:
 
 ```bash
 pip install -r requirements.txt
@@ -40,12 +40,22 @@ uvicorn api:app --host 0.0.0.0 --port 8000
 - The JSON response includes the fusion prediction, seven class probabilities, image-only probabilities, a Grad-CAM overlay data URL, and the research disclaimer.
 - Set `FRONTEND_ORIGIN` to the deployed frontend origin and `MODEL_DIR` if the model files live elsewhere. The API keeps uploaded images in memory and does not save them.
 
-For the frontend to use the API, configure its backend base URL to the deployed API origin, check `GET /health` for connection status, and submit the analysis form to `POST /api/analyze`. The frontend source is maintained separately from this repository, so its deployment configuration must be updated in that frontend project.
+Run the frontend locally from its folder:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+For the existing Vercel project, set **Root Directory** to `frontend` and add `NEXT_PUBLIC_API_URL` with the deployed Render API base URL (no trailing `/health`). Redeploy after changing the variable. The frontend and backend now share this repository, while Render can continue building the backend from the repository root.
 
 The API is a research prototype. Its predictions must not be used for clinical diagnosis or treatment decisions.
 
 ## Repo structure
 - `app.py`, `fusion_utils.py`: Streamlit app, model classes, Grad-CAM
+- `api.py`: FastAPI backend for the frontend
+- `frontend/`: Next.js WeCure web app
 - `models/`: trained weights and preprocessor
 - `results/`: metrics, predictions, confusion matrices, plots
 - `notebooks/`: Kaggle notebooks (training and evaluation)
