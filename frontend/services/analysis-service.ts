@@ -1,5 +1,4 @@
 import { apiRequest, isApiConfigured } from '@/lib/api-client'
-import { buildDemoAnalysisResult } from '@/lib/demo-data'
 import type { AnalysisOutcome, AnalysisRequest, AnalysisResult } from '@/types'
 
 export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png'] as const
@@ -27,12 +26,7 @@ export function validateImageFile(file: File): string | null {
 }
 
 export const analysisService = {
-  async analyze({ moduleId, file }: AnalysisRequest, options: { demo?: boolean } = {}): Promise<AnalysisOutcome> {
-    if (options.demo) {
-      await new Promise((r) => setTimeout(r, 1400))
-      return { kind: 'result', result: buildDemoAnalysisResult(moduleId) }
-    }
-
+  async analyze({ cancerType, moduleId, file, age, sex, localization }: AnalysisRequest): Promise<AnalysisOutcome> {
     if (!isApiConfigured) {
       await new Promise((r) => setTimeout(r, 900))
       return { kind: 'pending', message: MODEL_PENDING_MESSAGE }
@@ -40,8 +34,15 @@ export const analysisService = {
 
     const form = new FormData()
     form.append('file', file)
-    form.append('module_id', moduleId)
-    const result = await apiRequest<AnalysisResult>(`/api/v1/analysis/${moduleId}`, {
+    if (moduleId !== 'skin-image-analysis') {
+      if (age !== null) form.append('age', String(age))
+      form.append('sex', sex)
+      form.append('localization', localization)
+    }
+    const path = moduleId === 'skin-image-analysis'
+      ? `/api/v1/cancers/${cancerType}/image-analysis`
+      : `/api/v1/cancers/${cancerType}/multimodal-analysis`
+    const result = await apiRequest<AnalysisResult>(path, {
       method: 'POST',
       body: form,
       timeoutMs: 120_000,
