@@ -34,6 +34,9 @@ export const analysisService = {
     }
 
     if (!isApiConfigured) {
+      if (moduleId === 'brain-tumour') {
+        throw new Error('Brain MRI analysis backend is not configured. Set NEXT_PUBLIC_API_URL and start the FastAPI server.')
+      }
       await new Promise((r) => setTimeout(r, 900))
       return { kind: 'pending', message: MODEL_PENDING_MESSAGE }
     }
