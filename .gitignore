@@ -1,28 +1,6 @@
-# Python generated files
+venv/
 __pycache__/
-*.py[cod]
-.venv/
-
-# Local datasets
-data/brain cancer/
-
-# Environment secrets
-.env
-.env.*
-!.env.example
-
-# Dependencies
-node_modules/
-
-# Python cache
-__pycache__/
-*.py[cod]
-
-# Local environment
-.venv/
-
-# Local datasets
-data/brain cancer/
-
-# Patient-level clinical data
-evaluation/brain_clinical_experiments/extracted_feature_dataset.csv
+*.pyc
+.ipynb_checkpoints/
+*.zip
+organize.py

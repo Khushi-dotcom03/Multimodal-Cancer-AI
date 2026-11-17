@@ -1,7 +1,6 @@
-﻿'use client'
+'use client'
 
 /* eslint-disable @next/next/no-img-element -- previews are local object URLs */
-import { useRouter } from 'next/navigation'
 import { AlertTriangle, BrainCircuit, Clock, Cpu, Flame, Gauge, Hourglass, Loader2, RotateCcw, Tag } from 'lucide-react'
 import { Badge, EmptyState, Panel, PanelHeader } from '@/components/common/primitives'
 import { PENDING_MODEL_INFO } from '@/lib/demo-data'
@@ -14,15 +13,10 @@ interface Props {
   error: string | null
   previewUrl: string | null
   onRetry: () => void
-  title?: string
-  description?: string
 }
 
-export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, title = 'Research Results', description = 'Model output, explanation and metadata.' }: Props) {
-  const router = useRouter()
+export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry }: Props) {
   const result = outcome?.kind === 'result' ? outcome.result : null
-  const imageOnlyResult = result?.moduleId === 'skin-image-analysis'
-  const inputImageUrl = result?.originalImageUrl ?? previewUrl
   const pending = outcome?.kind === 'pending'
   const busy = phase === 'uploading' || phase === 'processing'
   const model: ModelInfo = result?.model ?? PENDING_MODEL_INFO
@@ -30,8 +24,8 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
   return (
     <Panel aria-live="polite">
       <PanelHeader
-        title={title}
-        description={description}
+        title="Research Results"
+        description="Model output, explanation and metadata."
         icon={BrainCircuit}
         action={result?.isDemo ? <Badge tone="violet">Demo output</Badge> : pending ? <Badge tone="amber">Integration pending</Badge> : undefined}
       />
@@ -42,7 +36,7 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
               <span className="absolute inset-0 animate-ping rounded-full bg-wc-cyan/20" />
               <Loader2 className="size-8 animate-spin text-wc-cyan" aria-hidden />
             </span>
-            <p className="text-sm font-semibold">{phase === 'uploading' ? 'Uploading imageâ€¦' : 'Processing analysisâ€¦'}</p>
+            <p className="text-sm font-semibold">{phase === 'uploading' ? 'Uploading image…' : 'Processing analysis…'}</p>
             <p className="text-xs text-muted-foreground">This may take a moment.</p>
           </div>
         )}
@@ -80,33 +74,12 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
               <ResultTile
                 icon={Gauge}
                 label="Confidence score"
-                value={result && !result.isDemo ? `${(result.confidence * 100).toFixed(1)}%` : 'â€”'}
+                value={result && !result.isDemo ? `${(result.confidence * 100).toFixed(1)}%` : '—'}
                 hint={result?.isDemo ? 'Not shown in demo mode' : !result ? 'Pending' : undefined}
                 muted={!result || result.isDemo}
               />
               <ResultTile icon={BrainCircuit} label="Classification output" value={result ? result.classification : 'Pending'} muted={!result} />
             </div>
-
-            {result && !result.isDemo && (
-              <>
-                {result.patient && <div className="rounded-xl border border-border bg-elevated p-4">
-                  <p className="text-sm font-semibold">Submitted clinical information</p>
-                  <dl className="mt-2 grid gap-3 text-sm sm:grid-cols-3">
-                    <Meta label="Age" value={result.patient.age == null ? 'Not provided' : `${result.patient.age} years`} />
-                    <Meta label="Sex" value={result.patient.sex === 'unknown' ? 'Not provided' : result.patient.sex} />
-                    <Meta label="Lesion location" value={result.patient.localization === 'unknown' ? 'Not provided' : result.patient.localization} />
-                  </dl>
-                </div>}
-                {result.probabilities && <div className="grid gap-4 xl:grid-cols-3">
-                  <ProbabilityPanel title={imageOnlyResult ? 'Image-only ResNet-18' : 'Image + clinical fusion'} values={result.probabilities} names={result.classNames ?? {}} />
-                  {result.imageOnlyProbabilities && <ProbabilityPanel title="Image-only ResNet-18" values={result.imageOnlyProbabilities} names={result.classNames ?? {}} />}
-                  {result.clinicalOnlyProbabilities && <ProbabilityPanel title="Clinical-only MLP" values={result.clinicalOnlyProbabilities} names={result.classNames ?? {}} />}
-                </div>}
-                <button type="button" onClick={() => router.push(`/reports?analysisId=${encodeURIComponent(result.analysisId)}`)} className="inline-flex h-10 items-center justify-center self-start rounded-xl border border-border bg-card px-4 text-sm font-semibold hover:bg-muted">
-                  View detailed research report
-                </button>
-              </>
-            )}
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-xl border border-border p-4">
@@ -116,7 +89,7 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <figure className="flex flex-col gap-1.5">
                     <div className="flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-muted">
-                      {inputImageUrl && <img src={inputImageUrl} alt="Uploaded image" className={imageOnlyResult ? 'size-full object-contain' : 'size-full object-cover'} />}
+                      {previewUrl && <img src={previewUrl} alt="Uploaded image" className="size-full object-cover" />}
                     </div>
                     <figcaption className="text-xs text-muted-foreground">Input image</figcaption>
                   </figure>
@@ -142,7 +115,7 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
                   <Meta label="Version" value={model.version} />
                   <Meta label="Architecture" value={model.architecture} />
                   <Meta label="Dataset" value={model.dataset} />
-                  <Meta label="Analysis ID" value={result?.analysisId ?? 'â€”'} mono />
+                  <Meta label="Analysis ID" value={result?.analysisId ?? '—'} mono />
                   <Meta
                     label="Analysis timestamp"
                     value={new Date(result?.createdAt ?? Date.now()).toLocaleString()}
@@ -183,14 +156,3 @@ function Meta({ label, value, mono, icon }: { label: string; value: string; mono
     </div>
   )
 }
-
-function ProbabilityPanel({ title, values, names }: { title: string; values: Record<string, number>; names: Record<string, string> }) {
-  return <div className="rounded-xl border border-border p-4">
-    <p className="text-sm font-semibold">{title}</p>
-    <div className="mt-3 flex flex-col gap-3">{Object.entries(values).map(([code, value]) => <div key={code}>
-      <div className="mb-1 flex justify-between gap-2 text-xs"><span className="font-medium">{names[code] || code} <span className="text-muted-foreground">({code})</span></span><span className="shrink-0 text-muted-foreground">{(value * 100).toFixed(2)}%</span></div>
-      <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-wc-turquoise" style={{ width: `${Math.max(0, Math.min(100, value * 100))}%` }} /></div>
-    </div>)}</div>
-  </div>
-}
-

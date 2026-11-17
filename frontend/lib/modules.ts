@@ -44,14 +44,14 @@ export const RESEARCH_MODULES: ResearchModule[] = [
     id: 'brain-tumour',
     name: 'Brain Tumour',
     shortName: 'Brain',
-    description: 'Brain MRI image classification with an independent research model.',
-    status: 'available',
-    statusLabel: 'Image Analysis Available',
+    description: 'Future research module for brain imaging and tumour-related research.',
+    status: 'coming-soon',
+    statusLabel: 'Coming Soon',
     category: 'Neuro Imaging',
     imaging: 'MRI',
     image: '/images/module-brain.png',
     accent: 'violet',
-    href: '/brain-image',
+    href: '/modules',
   },
 ]
 

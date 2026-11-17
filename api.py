@@ -12,24 +12,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, UnidentifiedImageError
 
 import fusion_utils as fu
-from cancers.brain.image.service import (
-    BrainImageError,
-    BrainModelUnavailable,
-    MAX_IMAGE_BYTES,
-    service as brain_image_service,
-)
-from cancers.brain.clinical.api import router as brain_clinical_router
-from cancers.brain.multimodal.api import router as brain_multimodal_router
 
 
 MODEL_DIR = os.getenv("MODEL_DIR", "models")
 DEVICE = os.getenv("MODEL_DEVICE", "cpu")
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "https://wecure-five.vercel.app,http://localhost:3000")
-ALLOWED_FRONTEND_ORIGINS = sorted(
-    {origin.strip() for origin in FRONTEND_ORIGIN.split(",") if origin.strip()}
-    | {"http://localhost:3000", "http://127.0.0.1:3000"}
-)
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "https://wecure-five.vercel.app")
 
 app = FastAPI(
     title="WeCure Skin Cancer Research API",
@@ -38,12 +26,10 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_FRONTEND_ORIGINS,
+    allow_origins=[origin.strip() for origin in FRONTEND_ORIGIN.split(",") if origin.strip()],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
-app.include_router(brain_clinical_router)
-app.include_router(brain_multimodal_router)
 
 _models = None
 
@@ -119,54 +105,9 @@ async def analyze(
     }
 
 
-@app.post("/api/v1/analysis/brain-tumour")
-def brain_image_analysis(file: UploadFile = File(...)):
-    """Receive one MRI image and run CPU-bound inference in FastAPI's worker pool."""
-    try:
-        content = file.file.read(MAX_IMAGE_BYTES + 1)
-    finally:
-        file.file.close()
-
-    try:
-        image = brain_image_service.decode_image(content, file.filename, file.content_type)
-        result = brain_image_service.analyze(image)
-    except BrainImageError as exc:
-        message = str(exc)
-        status = 413 if "10 MB" in message else 415 if "Unsupported" in message else 400
-        raise HTTPException(status_code=status, detail=message) from exc
-    except BrainModelUnavailable as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail="Brain MRI analysis failed. Please try another image.") from exc
-
-    timestamp = datetime.now(timezone.utc).isoformat()
-    return {
-        "analysisId": result["analysis_id"],
-        "moduleId": "brain-tumour",
-        "prediction": result["predicted_class"],
-        "confidence": result["class_scores"][result["predicted_class"]],
-        "classification": result["predicted_class"],
-        "classScores": result["class_scores"],
-        "heatmapUrl": result["gradcam"]["overlay"],
-        "gradcam": result["gradcam"],
-        "inferenceStatus": result["inference_status"],
-        "disclaimer": result["disclaimer"],
-        "model": {
-            "name": result["model_name"],
-            "architecture": result["model_architecture"],
-            "dataset": "Brain Tumor MRI (MIND project)",
-            "version": "Original best_model.pth",
-            "trainingStatus": "Pretrained checkpoint",
-            "evaluationStatus": "Research model; external validation not established",
-            "lastUpdated": timestamp,
-        },
-        "createdAt": timestamp,
-    }
-
-
 @app.post("/api/v1/analysis/{module_id}")
 async def frontend_analysis(module_id: str, file: UploadFile = File(...)):
-    """Match the multipart route and response shape used by the existing skin frontend."""
+    """Match the multipart route and response shape used by the WeCure frontend."""
     if module_id != "skin-cancer":
         raise HTTPException(status_code=404, detail="This research module is not available")
 
