@@ -1,0 +1,14 @@
+streamlit
+torch
+torchvision
+scikit-learn==1.6.1
+pandas
+numpy
+pillow
+matplotlib
+joblib
+fastapi
+uvicorn[standard]
+python-multipart
+tensorflow-cpu>=2.15,<2.17
+tf-keras>=2.16,<2.17
