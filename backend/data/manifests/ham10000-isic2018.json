@@ -1,0 +1,31 @@
+{
+  "dataset": "HAM10000 / ISIC 2018 Task 3 training snapshot",
+  "source_url": "https://challenge.isic-archive.com/data/",
+  "version": "ISIC 2018 fixed challenge dataset",
+  "license": "CC BY-NC 4.0",
+  "attribution": "Tschandl, P., Rosendahl, C. & Kittler, H. Scientific Data 5, 180161 (2018), https://doi.org/10.1038/sdata.2018.161",
+  "retrieved_at_utc": "2026-11-07T06:34:57.764890+00:00",
+  "files": [
+    {
+      "filename": "ISIC2018_Task3_Training_Input.zip",
+      "size_bytes": 2771732744,
+      "etag": "\"9b312b624f6fac8bc3b8356e6cc68d75-53\"",
+      "url": "https://isic-archive.s3.amazonaws.com/challenges/2018/ISIC2018_Task3_Training_Input.zip",
+      "sha256": "4151b6de5e31eb21586732d2dc0df047737501d5f5333cb52b071ad704364cc0"
+    },
+    {
+      "filename": "ISIC2018_Task3_Training_LesionGroupings.csv",
+      "size_bytes": 492996,
+      "etag": "\"9517b6aa6902d6c27e234bac8279a64a\"",
+      "url": "https://isic-archive.s3.amazonaws.com/challenges/2018/ISIC2018_Task3_Training_LesionGroupings.csv",
+      "sha256": "b0352393dc54843e39a7c108781c54cc8a0ef282240330ac239a88c46ea0cc0f"
+    },
+    {
+      "filename": "ISIC_2019_Training_Metadata.csv",
+      "url": "https://isic-archive.s3.amazonaws.com/challenges/2019/ISIC_2019_Training_Metadata.csv",
+      "size_bytes": 1214351,
+      "etag": "\"8ca5fdef200ffd8579f48c823b504f7e\"",
+      "sha256": "d93994a8ed201d474de9a7af7e17ec30929cbc4a5220659ecbde17cbe83e9316"
+    }
+  ]
+}

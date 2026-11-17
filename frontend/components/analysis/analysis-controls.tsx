@@ -1,9 +1,13 @@
+﻿
 'use client'
 
-import { Check, Cpu, FlaskConical, Loader2, Microscope, Play, SlidersHorizontal } from 'lucide-react'
-import { Badge, Panel, PanelHeader, Switch } from '@/components/common/primitives'
+import { Check, Cpu, Loader2, Microscope, Play, SlidersHorizontal } from 'lucide-react'
+import useSWR from 'swr'
+import { Badge, Panel, PanelHeader, inputClass } from '@/components/common/primitives'
 import { isApiConfigured } from '@/lib/api-client'
+import { modulesService } from '@/services/modules-service'
 import { cn } from '@/lib/utils'
+import type { ClinicalDetails } from '@/types'
 import type { AnalysisPhase } from './analysis-workspace'
 
 function formatBytes(bytes: number) {
@@ -18,35 +22,94 @@ const STEPS: { id: AnalysisPhase; label: string }[] = [
   { id: 'done', label: 'Results ready' },
 ]
 
+const LESION_LOCALIZATIONS = [
+  'abdomen',
+  'acral',
+  'back',
+  'chest',
+  'ear',
+  'face',
+  'foot',
+  'genital',
+  'hand',
+  'lower extremity',
+  'neck',
+  'scalp',
+  'trunk',
+  'unknown',
+  'upper extremity',
+]
+
 interface Props {
   file: File | null
   phase: AnalysisPhase
   onAnalyze: () => void
-  demoMode: boolean
-  onDemoModeChange: (value: boolean) => void
+  clinical: ClinicalDetails
+  onClinicalChange: (clinical: ClinicalDetails) => void
+  moduleId: string
+  clinicalEnabled: boolean
 }
 
-export function AnalysisControls({ file, phase, onAnalyze, demoMode, onDemoModeChange }: Props) {
+export function AnalysisControls({
+  file,
+  phase,
+  onAnalyze,
+  clinical,
+  onClinicalChange,
+  moduleId,
+  clinicalEnabled,
+}: Props) {
   const busy = phase === 'uploading' || phase === 'processing'
   const stepIndex = STEPS.findIndex((s) => s.id === phase)
 
+  const invalidAge =
+    clinicalEnabled &&
+    (clinical.age === null ||
+      !Number.isFinite(clinical.age) ||
+      clinical.age < 0 ||
+      clinical.age > 100)
+
+  const missingClinical =
+    clinicalEnabled &&
+    (clinical.sex === 'unknown' || clinical.localization === 'unknown')
+
+  const modelKey =
+    moduleId === 'skin-image-analysis' ? moduleId : 'skin-cancer'
+
+  const { data: modelInfo } = useSWR(
+    isApiConfigured ? `model:${modelKey}` : null,
+    () => modulesService.getModelInfo(modelKey),
+  )
+
   return (
     <Panel className="flex h-full flex-col">
-      <PanelHeader title="Analysis Controls" description="Configure and run the analysis." icon={SlidersHorizontal} />
+      <PanelHeader
+        title="Analysis Controls"
+        description="Configure and run the analysis."
+        icon={SlidersHorizontal}
+      />
+
       <div className="flex flex-1 flex-col gap-5 p-5 sm:p-6">
         <div className="flex items-center gap-3 rounded-xl border border-border bg-elevated p-3">
           <span className="flex size-10 items-center justify-center rounded-xl bg-wc-turquoise/12 text-wc-teal dark:text-wc-turquoise">
             <Microscope className="size-5" aria-hidden />
           </span>
+
           <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground">Selected module</p>
-            <p className="text-sm font-semibold">Skin Cancer</p>
+            <p className="text-sm font-semibold">
+              {clinicalEnabled ? 'Combined Analysis' : 'Image Analysis'}
+            </p>
           </div>
+
           <Badge tone="emerald">Prototype</Badge>
         </div>
 
         <div>
-          <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Uploaded image</p>
+          <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            Uploaded image
+          </p>
+
           {file ? (
             <dl className="mt-2 grid grid-cols-3 gap-2 text-sm">
               <div className="col-span-3 rounded-lg bg-muted px-3 py-2">
@@ -55,36 +118,184 @@ export function AnalysisControls({ file, phase, onAnalyze, demoMode, onDemoModeC
                   {file.name}
                 </dd>
               </div>
+
               <div className="rounded-lg bg-muted px-3 py-2">
                 <dt className="text-xs text-muted-foreground">Format</dt>
-                <dd className="font-mono font-medium uppercase">{file.type.split('/')[1]}</dd>
+                <dd className="font-mono font-medium uppercase">
+                  {file.type.split('/')[1] || 'Unknown'}
+                </dd>
               </div>
+
               <div className="col-span-2 rounded-lg bg-muted px-3 py-2">
                 <dt className="text-xs text-muted-foreground">Size</dt>
-                <dd className="font-mono font-medium">{formatBytes(file.size)}</dd>
+                <dd className="font-mono font-medium">
+                  {formatBytes(file.size)}
+                </dd>
               </div>
             </dl>
           ) : (
-            <p className="mt-2 rounded-lg bg-muted px-3 py-2.5 text-sm text-muted-foreground">No image selected yet.</p>
+            <p className="mt-2 rounded-lg bg-muted px-3 py-2.5 text-sm text-muted-foreground">
+              No image selected yet.
+            </p>
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
-          <div className="flex items-start gap-2.5">
-            <FlaskConical className="mt-0.5 size-4 text-wc-violet" aria-hidden />
-            <div>
-              <label htmlFor="demo-mode" className="text-sm font-medium">
-                Demonstration mode
-              </label>
-              <p className="text-xs text-muted-foreground">Show labelled placeholder output for UI testing.</p>
+        {clinicalEnabled && (
+          <details open className="rounded-xl border border-border">
+            <summary className="cursor-pointer list-none px-3 py-3 text-sm font-medium">
+              Clinical information for the same lesion
+
+              <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                Age, sex and lesion location are required for combined analysis.
+              </span>
+            </summary>
+
+            <div className="grid grid-cols-2 gap-3 px-3 pb-3">
+              <div>
+                <label
+                  htmlFor="patient-age"
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Age *
+                </label>
+
+                <input
+                  id="patient-age"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={clinical.age ?? ''}
+                  onChange={(event) =>
+                    onClinicalChange({
+                      ...clinical,
+                      age:
+                        event.target.value === ''
+                          ? null
+                          : Number(event.target.value),
+                    })
+                  }
+                  className={inputClass}
+                  placeholder="Enter age"
+                  aria-invalid={invalidAge}
+                  aria-describedby="patient-age-help"
+                  disabled={busy}
+                />
+
+                <p
+                  id="patient-age-help"
+                  className={`mt-1 text-xs ${
+                    invalidAge ? 'text-red-600' : 'text-muted-foreground'
+                  }`}
+                >
+                  {invalidAge
+                    ? 'Age is required. Enter a value from 0 to 100 years.'
+                    : 'Required: 0–100 years.'}
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="patient-sex"
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Sex *
+                </label>
+
+                <select
+                  id="patient-sex"
+                  value={clinical.sex}
+                  onChange={(event) =>
+                    onClinicalChange({
+                      ...clinical,
+                      sex: event.target.value as ClinicalDetails['sex'],
+                    })
+                  }
+                  className={inputClass}
+                  disabled={busy}
+                >
+                  <option value="unknown">Select sex</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+              </div>
+
+              <div className="col-span-2">
+                <label
+                  htmlFor="lesion-localization"
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Lesion location *
+                </label>
+
+                <select
+                  id="lesion-localization"
+                  value={clinical.localization}
+                  onChange={(event) =>
+                    onClinicalChange({
+                      ...clinical,
+                      localization: event.target.value,
+                    })
+                  }
+                  className={inputClass}
+                  disabled={busy}
+                >
+                  {LESION_LOCALIZATIONS.map((location) => (
+                    <option key={location} value={location}>
+                      {location === 'unknown'
+                        ? 'Select lesion location'
+                        : location.replace(/\b\w/g, (letter) =>
+                            letter.toUpperCase(),
+                          )}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-          <Switch id="demo-mode" checked={demoMode} onCheckedChange={onDemoModeChange} label="Demonstration mode" />
+          </details>
+        )}
+
+        <div className="rounded-xl border border-border bg-elevated p-3">
+          <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            Model configuration
+          </p>
+
+          {modelInfo ? (
+            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+              <div className="col-span-2">
+                <dt className="text-muted-foreground">Architecture</dt>
+                <dd className="font-medium">{modelInfo.architecture}</dd>
+              </div>
+
+              <div>
+                <dt className="text-muted-foreground">Version</dt>
+                <dd className="font-medium">{modelInfo.version}</dd>
+              </div>
+
+              <div>
+                <dt className="text-muted-foreground">Dataset</dt>
+                <dd className="font-medium">{modelInfo.dataset}</dd>
+              </div>
+            </dl>
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Model configuration is unavailable until the API responds.
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Cpu className="size-3.5" aria-hidden />
-          Backend: {isApiConfigured ? <span className="font-medium text-emerald-600 dark:text-emerald-400">configured</span> : <span className="font-medium text-amber-600 dark:text-amber-400">not connected</span>}
+          Backend:{' '}
+          {isApiConfigured ? (
+            <span className="font-medium text-emerald-600 dark:text-emerald-400">
+              configured
+            </span>
+          ) : (
+            <span className="font-medium text-amber-600 dark:text-amber-400">
+              not connected
+            </span>
+          )}
         </div>
 
         <div className="mt-auto flex flex-col gap-4">
@@ -93,30 +304,59 @@ export function AnalysisControls({ file, phase, onAnalyze, demoMode, onDemoModeC
               {STEPS.map((s, i) => {
                 const complete = i < stepIndex || phase === 'done'
                 const current = i === stepIndex && busy
+
                 return (
-                  <li key={s.id} className="flex items-center gap-2.5 text-sm">
+                  <li
+                    key={s.id}
+                    className="flex items-center gap-2.5 text-sm"
+                  >
                     <span
                       className={cn(
                         'flex size-5 items-center justify-center rounded-full',
-                        complete ? 'bg-wc-emerald text-white' : current ? 'bg-wc-cyan/15 text-wc-cyan' : 'bg-muted text-muted-foreground',
+                        complete
+                          ? 'bg-wc-emerald text-white'
+                          : current
+                            ? 'bg-wc-cyan/15 text-wc-cyan'
+                            : 'bg-muted text-muted-foreground',
                       )}
                     >
-                      {complete ? <Check className="size-3" /> : current ? <Loader2 className="size-3 animate-spin" /> : <span className="size-1.5 rounded-full bg-current" />}
+                      {complete ? (
+                        <Check className="size-3" />
+                      ) : current ? (
+                        <Loader2 className="size-3 animate-spin" />
+                      ) : (
+                        <span className="size-1.5 rounded-full bg-current" />
+                      )}
                     </span>
-                    <span className={cn(complete || current ? 'text-foreground' : 'text-muted-foreground')}>{s.label}</span>
+
+                    <span
+                      className={cn(
+                        complete || current
+                          ? 'text-foreground'
+                          : 'text-muted-foreground',
+                      )}
+                    >
+                      {s.label}
+                    </span>
                   </li>
                 )
               })}
             </ol>
           )}
+
           <button
             type="button"
             onClick={onAnalyze}
-            disabled={!file || busy}
+            disabled={!file || busy || invalidAge || missingClinical}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl brand-gradient px-5 text-sm font-semibold text-white shadow-lg shadow-wc-teal/20 transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
-            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Play className="size-4" aria-hidden />}
-            {busy ? 'Analyzing…' : 'Analyze Image'}
+            {busy ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <Play className="size-4" aria-hidden />
+            )}
+
+            {busy ? 'Analyzing...' : 'Analyze Image'}
           </button>
         </div>
       </div>

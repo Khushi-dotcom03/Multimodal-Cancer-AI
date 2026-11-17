@@ -1,0 +1,44 @@
+{
+  "dataset": "PAD-UFES-20",
+  "dataset_id": "zr7vgbcyr2",
+  "version": 1,
+  "doi": "10.17632/zr7vgbcyr2.1",
+  "source_url": "https://data.mendeley.com/datasets/zr7vgbcyr2/1",
+  "api_source": "https://data.mendeley.com/public-api/datasets/zr7vgbcyr2",
+  "license": "CC BY 4.0",
+  "retrieved_at_utc": "2026-11-07T06:26:10.299129+00:00",
+  "files": [
+    {
+      "filename": "imgs_part_1.zip",
+      "url": "https://data.mendeley.com/public-files/datasets/zr7vgbcyr2/files/1cc2f71f-20a2-412d-b746-a9b9bc20c966/file_downloaded",
+      "sha256": "0ab44f60938bf57445e12f518a8878954cc734e6b0aec6d01194e2d26b4b2dca",
+      "size_bytes": 1245184680,
+      "content_type": "application/zip",
+      "file_id": "1cc2f71f-20a2-412d-b746-a9b9bc20c966"
+    },
+    {
+      "filename": "imgs_part_2.zip",
+      "url": "https://data.mendeley.com/public-files/datasets/zr7vgbcyr2/files/559a60ed-5504-475d-996c-6a8bc253b5e7/file_downloaded",
+      "sha256": "e2d9a3cbd58e823f5ae33163c48643e7d1b54ae3f9e145f01f8e9f16a363a60b",
+      "size_bytes": 1126646990,
+      "content_type": "application/zip",
+      "file_id": "559a60ed-5504-475d-996c-6a8bc253b5e7"
+    },
+    {
+      "filename": "imgs_part_3.zip",
+      "url": "https://data.mendeley.com/public-files/datasets/zr7vgbcyr2/files/34dcdf8e-e5f1-4b35-aa0b-5135051ff852/file_downloaded",
+      "sha256": "ecc4ef10143a43e1d01cb736773148607a78b530417eb76f2c38ad24bf5d0d2c",
+      "size_bytes": 1220565093,
+      "content_type": "application/zip",
+      "file_id": "34dcdf8e-e5f1-4b35-aa0b-5135051ff852"
+    },
+    {
+      "filename": "metadata.csv",
+      "url": "https://data.mendeley.com/public-files/datasets/zr7vgbcyr2/files/fa850265-57da-48f0-ba3e-998b3e44b1f6/file_downloaded",
+      "sha256": "14d145235cedb022548257acb0d84dcd949e2c916f65d2baa7c38ed5339e9527",
+      "size_bytes": 316209,
+      "content_type": "text/csv",
+      "file_id": "fa850265-57da-48f0-ba3e-998b3e44b1f6"
+    }
+  ]
+}
