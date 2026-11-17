@@ -31,6 +31,10 @@ export interface AnalysisResult {
   model: ModelInfo
   createdAt: string
   isDemo?: boolean
+  classScores?: Record<string, number>
+  gradcam?: { available: boolean; heatmap?: string | null; overlay?: string | null }
+  disclaimer?: string
+  inferenceStatus?: string
 }
 
 export type AnalysisOutcome =
