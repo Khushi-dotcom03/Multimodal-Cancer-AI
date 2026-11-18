@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Clock, ScanSearch } from 'lucide-react'
+import { Activity, ArrowRight, Clock, Layers3, ScanSearch } from 'lucide-react'
 import { Badge } from '@/components/common/primitives'
 import { ACCENT_STYLES } from '@/lib/modules'
 import { cn } from '@/lib/utils'
@@ -65,14 +65,18 @@ export function ModuleCard({ module: m }: { module: ResearchModule }) {
           </div>
         </dl>
         {available ? (
-          <Link
-            href={m.href}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            <ScanSearch className="size-4" aria-hidden />
-            Explore Module
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-          </Link>
+          <>
+            <Link
+              href={m.href}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <ScanSearch className="size-4" aria-hidden />
+              Explore Module
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+            </Link>
+            {m.id === 'brain-tumour' && <Link href="/brain-clinical" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold hover:bg-muted"><Activity className="size-4" aria-hidden /> Clinical Analysis</Link>}
+            {m.id === 'brain-tumour' && <Link href="/brain-multimodal" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-wc-violet/30 bg-wc-violet/5 px-4 text-sm font-semibold text-wc-violet hover:bg-wc-violet/10"><Layers3 className="size-4" aria-hidden /> Image + Clinical</Link>}
+          </>
         ) : (
           <button
             type="button"

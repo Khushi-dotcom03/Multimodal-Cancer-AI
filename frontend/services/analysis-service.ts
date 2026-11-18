@@ -28,20 +28,25 @@ export function validateImageFile(file: File): string | null {
 export const analysisService = {
   async analyze({ cancerType, moduleId, file, age, sex, localization }: AnalysisRequest): Promise<AnalysisOutcome> {
     if (!isApiConfigured) {
+      if (moduleId === 'brain-tumour') {
+        throw new Error('Brain MRI analysis backend is not configured. Set NEXT_PUBLIC_API_URL and start the FastAPI server.')
+      }
       await new Promise((r) => setTimeout(r, 900))
       return { kind: 'pending', message: MODEL_PENDING_MESSAGE }
     }
 
     const form = new FormData()
     form.append('file', file)
-    if (moduleId !== 'skin-image-analysis') {
-      if (age !== null) form.append('age', String(age))
-      form.append('sex', sex)
-      form.append('localization', localization)
+    if (moduleId !== 'skin-image-analysis' && moduleId !== 'brain-tumour') {
+      if (age != null) form.append('age', String(age))
+      if (sex) form.append('sex', sex)
+      if (localization) form.append('localization', localization)
     }
-    const path = moduleId === 'skin-image-analysis'
-      ? `/api/v1/cancers/${cancerType}/image-analysis`
-      : `/api/v1/cancers/${cancerType}/multimodal-analysis`
+    const path = moduleId === 'brain-tumour'
+      ? '/api/v1/analysis/brain-tumour'
+      : moduleId === 'skin-image-analysis'
+        ? `/api/v1/cancers/${cancerType ?? 'skin'}/image-analysis`
+        : `/api/v1/cancers/${cancerType ?? 'skin'}/multimodal-analysis`
     const result = await apiRequest<AnalysisResult>(path, {
       method: 'POST',
       body: form,

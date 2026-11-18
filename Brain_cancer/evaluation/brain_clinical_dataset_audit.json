@@ -1,0 +1,107 @@
+{
+  "dataset": "IPD-Brain clinical records",
+  "path": "Brain_cancer/data/brain cancer/IPD_Brain.csv",
+  "record_count": 328,
+  "unique_patient_groups": 328,
+  "duplicate_case_number_count": 0,
+  "duplicate_patient_group_rows": 0,
+  "duplicate_exact_rows": 0,
+  "columns": [
+    "Case Number",
+    "Age",
+    "Sex",
+    "C/F",
+    "Radiology",
+    "Diagnosis",
+    "WHO Grade",
+    "SITE",
+    "Subtype",
+    "ki67(in %)",
+    "IDH1R132H",
+    "ATRX",
+    "p53"
+  ],
+  "missing_by_column": {
+    "Case Number": 0,
+    "Age": 0,
+    "Sex": 0,
+    "C/F": 42,
+    "Radiology": 59,
+    "Diagnosis": 0,
+    "WHO Grade": 0,
+    "SITE": 1,
+    "Subtype": 0,
+    "ki67(in %)": 0,
+    "IDH1R132H": 0,
+    "ATRX": 0,
+    "p53": 0
+  },
+  "age": {
+    "minimum": 5.0,
+    "maximum": 78.0,
+    "median": 45.0,
+    "mean": 45.89329268292683
+  },
+  "sex_counts": {
+    "M": 192,
+    "F": 136
+  },
+  "subtype_counts": {
+    "GLIOBLASTOMA": 168,
+    "ASTROCYTOMA": 88,
+    "OLIGODENDROGLIOMA": 72
+  },
+  "site": {
+    "populated": 327,
+    "missing": 1,
+    "unique_raw_values": 187,
+    "unknown_marker_count": 7
+  },
+  "free_text": {
+    "C/F": {
+      "populated": 286,
+      "missing": 42,
+      "unique_nonempty": 260,
+      "median_characters": 39.5,
+      "records_with_explicit_subtype_terms": 7,
+      "records_with_general_tumor_or_pathology_terms": 16
+    },
+    "Radiology": {
+      "populated": 269,
+      "missing": 59,
+      "unique_nonempty": 267,
+      "median_characters": 116.0,
+      "records_with_explicit_subtype_terms": 25,
+      "records_with_general_tumor_or_pathology_terms": 109
+    }
+  },
+  "diagnosis_target_quality": {
+    "explicit_conflict_records": 1,
+    "records_without_unambiguous_subtype_in_diagnosis": 3
+  },
+  "feature_selection": {
+    "included": [
+      "Age",
+      "Sex",
+      "SITE"
+    ],
+    "excluded": {
+      "Case Number": "identifier used only to group records for patient-level split",
+      "C/F": "free text includes known/recurrent tumor and subtype references in some rows",
+      "Radiology": "contains direct suspected/confirmed subtype terms in many rows",
+      "Diagnosis": "pathology-derived label and explicit subtype information",
+      "WHO Grade": "pathology-derived label and correlated target information",
+      "Subtype": "target only",
+      "ki67(in %)": "pathology-derived molecular/proliferation marker",
+      "IDH1R132H": "molecular pathology marker",
+      "ATRX": "molecular pathology marker",
+      "p53": "molecular pathology marker"
+    }
+  },
+  "target": "Subtype (Glioblastoma, Astrocytoma, Oligodendroglioma) among IPD-Brain glioma patients",
+  "limitations": [
+    "328 patient records from a retrospective, single-institution Indian cohort; no external validation cohort is supplied here.",
+    "Site is populated for nearly all records but appears in 187 differently written values and requires free-text normalization.",
+    "C/F and Radiology were not used because they can disclose prior/pathology subtype information."
+  ]
+}

@@ -35,10 +35,13 @@ export interface PADClinicalDetails {
   elevation: 'True' | 'False' | 'UNK'
 }
 
-export interface AnalysisRequest extends ClinicalDetails {
-  cancerType: CancerTypeId
+export interface AnalysisRequest {
+  cancerType?: CancerTypeId
   moduleId: string
   file: File
+  age?: ClinicalDetails['age']
+  sex?: ClinicalDetails['sex']
+  localization?: ClinicalDetails['localization']
   dataset?: 'HAM10000' | 'PAD-UFES-20'
   padClinical?: PADClinicalDetails
 }
@@ -65,6 +68,10 @@ export interface AnalysisResult {
   model: ModelInfo
   createdAt: string
   isDemo?: boolean
+  classScores?: Record<string, number>
+  gradcam?: { available: boolean; heatmap?: string | null; overlay?: string | null }
+  disclaimer?: string
+  inferenceStatus?: string
 }
 
 export type AnalysisOutcome =
