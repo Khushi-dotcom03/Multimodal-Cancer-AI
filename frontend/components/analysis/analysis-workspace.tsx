@@ -1,19 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { DemoBanner } from '@/components/common/brand'
-import { useDemoMode } from '@/components/providers'
 import { analysisService } from '@/services/analysis-service'
-import type { AnalysisOutcome } from '@/types'
+import type { AnalysisOutcome, ClinicalDetails } from '@/types'
 import { AnalysisControls } from './analysis-controls'
 import { AnalysisResults } from './analysis-results'
 import { ImageUploader } from './image-uploader'
+import { CombinedAnalysisWorkspace } from './combined-analysis-workspace'
 
 export type AnalysisPhase = 'idle' | 'uploading' | 'processing' | 'done' | 'error'
 
-export function AnalysisWorkspace() {
-  const { demoMode, setDemoMode } = useDemoMode()
+export function AnalysisWorkspace({ moduleId = 'skin-cancer' }: { moduleId?: string }) {
   const [file, setFile] = useState<File | null>(null)
+  const [clinical, setClinical] = useState<ClinicalDetails>({ age: null, sex: 'unknown', localization: 'unknown' })
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [phase, setPhase] = useState<AnalysisPhase>('idle')
   const [outcome, setOutcome] = useState<AnalysisOutcome | null>(null)
@@ -43,7 +42,7 @@ export function AnalysisWorkspace() {
     setPhase('uploading')
     const toProcessing = setTimeout(() => setPhase('processing'), 500)
     try {
-      const result = await analysisService.analyze({ moduleId: 'skin-cancer', file }, { demo: demoMode })
+      const result = await analysisService.analyze({ cancerType: 'skin', moduleId, file, ...clinical })
       setOutcome(result)
       setPhase('done')
     } catch (e) {
@@ -56,9 +55,10 @@ export function AnalysisWorkspace() {
 
   const busy = phase === 'uploading' || phase === 'processing'
 
+  if (moduleId === 'skin-cancer') return <CombinedAnalysisWorkspace />
+
   return (
     <div className="flex flex-col gap-6">
-      {demoMode && <DemoBanner message="Analysis returns an illustrative placeholder. No model is run and no prediction is made." />}
       <div className="grid gap-6 xl:grid-cols-5">
         <div className="xl:col-span-3">
           <ImageUploader file={file} previewUrl={previewUrl} onFileChange={handleFile} disabled={busy} />
@@ -68,8 +68,10 @@ export function AnalysisWorkspace() {
             file={file}
             phase={phase}
             onAnalyze={analyze}
-            demoMode={demoMode}
-            onDemoModeChange={setDemoMode}
+            clinical={clinical}
+            onClinicalChange={setClinical}
+            moduleId={moduleId}
+            clinicalEnabled={moduleId !== 'skin-image-analysis'}
           />
         </div>
       </div>
@@ -77,3 +79,4 @@ export function AnalysisWorkspace() {
     </div>
   )
 }
+
