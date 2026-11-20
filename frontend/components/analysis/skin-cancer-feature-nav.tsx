@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Activity, FileImage, Stethoscope } from 'lucide-react'
+import { Activity, FileImage, MessageCircle, Stethoscope } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const FEATURES = [
   { href: '/image-analysis', label: 'Image Analysis', icon: FileImage },
   { href: '/clinical-analysis', label: 'Clinical Analysis', icon: Stethoscope },
   { href: '/analysis', label: 'Combined Analysis', icon: Activity },
+  { href: '/assistant', label: 'AI Assistant', icon: MessageCircle },
 ]
 
 export function SkinCancerFeatureNav() {

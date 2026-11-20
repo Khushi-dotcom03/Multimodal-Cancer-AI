@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import os
+from dotenv import load_dotenv
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -21,6 +22,7 @@ try:  # Support both `uvicorn api:app` from backend/ and `uvicorn backend.api:ap
     from .models.clinical_model import ClinicalMLP
     from .cancer_registry.registry import get_cancer
     from .cancer_registry.routes import router as cancer_registry_router
+    from .chatbot.routes import router as assistant_router
     from .pad_clinical_api import router as pad_clinical_router
     from .skin_ood_gate import score_skin_scope
 except ImportError:  # pragma: no cover - used when backend/ is the import root
@@ -29,10 +31,12 @@ except ImportError:  # pragma: no cover - used when backend/ is the import root
     from models.clinical_model import ClinicalMLP
     from cancer_registry.registry import get_cancer
     from cancer_registry.routes import router as cancer_registry_router
+    from chatbot.routes import router as assistant_router
     from pad_clinical_api import router as pad_clinical_router
     from skin_ood_gate import score_skin_scope
 
 
+load_dotenv(Path(__file__).resolve().parent / '.env')
 MODEL_DIR = config.MODEL_DIR
 RESULTS_DIR = config.RESULTS_DIR
 DEVICE = config.DEVICE
@@ -50,6 +54,7 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 app.include_router(cancer_registry_router)
+app.include_router(assistant_router)
 app.include_router(pad_clinical_router)
 
 _models = None

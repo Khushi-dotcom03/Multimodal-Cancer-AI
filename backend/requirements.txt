@@ -11,3 +11,4 @@ fastapi
 uvicorn[standard]
 python-multipart
 reportlab>=4.2,<5
+groq>=1.7,<2
