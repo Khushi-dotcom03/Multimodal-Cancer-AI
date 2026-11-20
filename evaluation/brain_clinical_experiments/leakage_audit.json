@@ -1,0 +1,284 @@
+{
+  "symptoms": {
+    "headache": {
+      "present": 143,
+      "absent": 0,
+      "unknown": 184,
+      "examples": {
+        "present": [
+          "Headache,Intention burns of visim,Personality Changes",
+          "Headache, vomitings, weakness of upperlimb & lowerlimb since 10 days",
+          "c/o Headache since 1 month\na/w Vomiting at peak of headache"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "H/O gradually progressive headache associated with seizure episode",
+          "H/O Occational headache associated with one episode of seizure.",
+          "H/o Headache associated with one episode of GTCS"
+        ]
+      }
+    },
+    "vomiting": {
+      "present": 40,
+      "absent": 0,
+      "unknown": 287,
+      "examples": {
+        "present": [
+          "Headache, vomitings, weakness of upperlimb & lowerlimb since 10 days",
+          "c/o Headache since 1 month\na/w Vomiting at peak of headache",
+          "H/O Rt 7-p glioma(HPE- glioblastoma multiforme)\nOperated in november 2021(No RT taken)\nc/o-weakness of UL/LL since 2 days. No LOC, Vomthings\nGC1-E4V4M6"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "K/C/O DM, C/O Forgetfulness- 2months\nNo h/o feizial LOC/Vomitings",
+          "C/O frontal headache\nForgetfulness\nh/o seizures/vomiting"
+        ]
+      }
+    },
+    "seizure": {
+      "present": 80,
+      "absent": 0,
+      "unknown": 247,
+      "examples": {
+        "present": [
+          "c/o Headache, vomitings, seizures since 2 months.",
+          "c/o TIA\nc/o seizeire",
+          "c/o seizure"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "H/O gradually progressive headache associated with seizure episode",
+          "H/O Occational headache associated with one episode of seizure.",
+          "H/O on episode of seizure"
+        ]
+      }
+    },
+    "limb_weakness": {
+      "present": 52,
+      "absent": 0,
+      "unknown": 275,
+      "examples": {
+        "present": [
+          "C/O Weakness of right UL/LL",
+          "Headache, vomitings, weakness of upperlimb & lowerlimb since 10 days",
+          "H/O Rt 7-p glioma(HPE- glioblastoma multiforme)\nOperated in november 2021(No RT taken)\nc/o-weakness of UL/LL since 2 days. No LOC, Vomthings\nGC1-E4V4M6"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "h/o weakness of left UL & LL\nh/o Giddiness",
+          "h/o weakness of right UL and LL",
+          "H/O Headache and vomitings since 4 days\nNo H/O UL&LL weakness\nNo H/O speech disturbance"
+        ]
+      }
+    },
+    "dizziness": {
+      "present": 18,
+      "absent": 0,
+      "unknown": 309,
+      "examples": {
+        "present": [
+          "c/o Headache since 1 month\nc/o dizziness since 1 month, no neurological deficit",
+          "C/o Headache and giddiness since 4-5 days",
+          "c/o giddiness & blurring of vision since 20 days\nc/o seizure \u2013 1 episode in 2018"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "h/o weakness of left UL & LL\nh/o Giddiness"
+        ]
+      }
+    },
+    "loss_consciousness": {
+      "present": 4,
+      "absent": 1,
+      "unknown": 322,
+      "examples": {
+        "present": [
+          "C/O loss of consciousness",
+          "c/o seizures, LOC since 10 days",
+          "c/o LOC since 4 months back\nVomiting, Headache, Fever"
+        ],
+        "absent": [
+          "H/O Rt 7-p glioma(HPE- glioblastoma multiforme)\nOperated in november 2021(No RT taken)\nc/o-weakness of UL/LL since 2 days. No LOC, Vomthings\nGC1-E4V4M6"
+        ],
+        "historical_or_ambiguous": [
+          "K/C/O DM, C/O Forgetfulness- 2months\nNo h/o feizial LOC/Vomitings",
+          "c/o seizures\nh/o LOC\nc/o weakness of right UL & LL",
+          "Headache since 3 months\nh/o LOC\nh/o seizures"
+        ]
+      }
+    },
+    "memory": {
+      "present": 13,
+      "absent": 0,
+      "unknown": 314,
+      "examples": {
+        "present": [
+          "K/C/O DM, C/O Forgetfulness- 2months\nNo h/o feizial LOC/Vomitings",
+          "Headache-3 months\nVomitings\nc/o memory distrubances",
+          "c/o left side headache\nVomiting 1 episode\nIntermittent memory loss since 6 months"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "h/o memory disturbances, h/o slurring of speech - 15 days"
+        ]
+      }
+    },
+    "speech": {
+      "present": 23,
+      "absent": 0,
+      "unknown": 304,
+      "examples": {
+        "present": [
+          "c/o weakness of right UL & LL\nc/o slowness of speech",
+          "C/o Headache, C/o, Decreased vision, weakness of right UL and LL. c/o speech disturbances.",
+          "Headache and slurred speech"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "H/O Headache and vomitings since 4 days\nNo H/O UL&LL weakness\nNo H/O speech disturbance",
+          "h/o memory disturbances, h/o slurring of speech - 15 days",
+          "H/O 1 episodes seizure speech distrabances"
+        ]
+      }
+    },
+    "visual": {
+      "present": 12,
+      "absent": 0,
+      "unknown": 315,
+      "examples": {
+        "present": [
+          "c/o giddiness & blurring of vision since 20 days\nc/o seizure \u2013 1 episode in 2018",
+          "C/o Headache, C/o, Decreased vision, weakness of right UL and LL. c/o speech disturbances.",
+          "C/O sudden loss of vision since 10 days\nWeakness of left UL since 1 week\nH/O GTCS 2 months back"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": [
+          "double vision-5 months back\nBlurring of vision-4 months\nHeadache-1 month\nSeizures-5 days"
+        ]
+      }
+    },
+    "personality_behavior": {
+      "present": 5,
+      "absent": 0,
+      "unknown": 322,
+      "examples": {
+        "present": [
+          "Headache,Intention burns of visim,Personality Changes",
+          "c/o Headache\nBehavioral changes",
+          "c/o behavioural changes, memory loss since 2-3 months"
+        ],
+        "absent": [],
+        "historical_or_ambiguous": []
+      }
+    }
+  },
+  "radiology": {
+    "safe_rows": 121,
+    "unsafe_rows": 206,
+    "reason_counts": {
+      "missing_text": 59,
+      "subtype_or_glioma": 116,
+      "history_or_treatment": 6,
+      "other_tumor_or_pathology": 26,
+      "diagnostic_language": 91,
+      "uncertain_mark": 57
+    },
+    "safe_examples": {
+      "t1_signal": {
+        "value": "hyper",
+        "text": "MRI T1-isointence T1c-heterogeneous enhancement, T2-hyperintence lesion with perilesional edema lesion around 4.5\u03a72.2\u03a73.2cm present in left frontal lobe"
+      },
+      "t2_flair_signal": {
+        "value": "hyper",
+        "text": "MRI T1-isointence T1c-heterogeneous enhancement, T2-hyperintence lesion with perilesional edema lesion around 4.5\u03a72.2\u03a73.2cm present in left frontal lobe"
+      },
+      "enhancement": {
+        "value": "heterogeneous",
+        "text": "MRI T1-isointence T1c-heterogeneous enhancement, T2-hyperintence lesion with perilesional edema lesion around 4.5\u03a72.2\u03a73.2cm present in left frontal lobe"
+      },
+      "edema": {
+        "value": "present",
+        "text": "MRI T1-isointence T1c-heterogeneous enhancement, T2-hyperintence lesion with perilesional edema lesion around 4.5\u03a72.2\u03a73.2cm present in left frontal lobe"
+      },
+      "cystic_component": {
+        "value": "present",
+        "text": "CT-Brain-Iso dence lesion with cyst in port forier\nMRI-T1-Iso intance with cyst(more hypointance)\nT2- Iso intance(solid) with hyperintance lesion\nContrast moral reduce with enhance"
+      },
+      "mass_effect": {
+        "value": "present",
+        "text": "MRI Brain- T2/FLAIR hyper intense as defined instruction seen in left thalamus, left medical temporal lobe with mass effect"
+      }
+    },
+    "unsafe_examples": [
+      {
+        "reasons": [
+          "missing_text"
+        ],
+        "text": ""
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma",
+          "history_or_treatment"
+        ],
+        "text": "h/o SZ- Right frontal SOL\ns/p Radiation\nPreviously operated-[subtype/pathology term]"
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma"
+        ],
+        "text": "MRI-Rt Temporoparietal [subtype/pathology term] with mass effect & midline\nT1- hypointense, T2/FLAR hyperintense, port content hetrogeneous enhancement"
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma",
+          "other_tumor_or_pathology"
+        ],
+        "text": "MRI- Well defined lobulated introxial with Parieto-Temporal lesion\n-Tuberculoma\n-[subtype/pathology term]\n-Metastasis"
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma",
+          "diagnostic_language"
+        ],
+        "text": "MRI Brain: Showing lesion involving right parietal lesion iso on T1W, hyper on T2W, peripheral front like enhancement on contrast\ns/o [subtype/pathology term] Gliosarcoma"
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma",
+          "other_tumor_or_pathology",
+          "uncertain_mark"
+        ],
+        "text": "?Corpus callosal [subtype/pathology term]?\nLymphoma"
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma",
+          "uncertain_mark"
+        ],
+        "text": "frontal lesion\n?[subtype/pathology term]"
+      },
+      {
+        "reasons": [
+          "subtype_or_glioma",
+          "diagnostic_language"
+        ],
+        "text": "T1 hypointense lesion, T2-hyperintense in the left temporal lobe obtain of temporal lesion\ns/o left temporal lobe, low grade [subtype/pathology term]"
+      }
+    ]
+  },
+  "radiology_policy": "Any missing text or any subtype, diagnosis/differential, tumor/pathology, history/treatment, or question-mark indicator makes every radiology-derived feature unknown.",
+  "excluded_features": [
+    "Case Number",
+    "Diagnosis",
+    "WHO Grade",
+    "Subtype as input",
+    "ki67(in %)",
+    "IDH1R132H",
+    "ATRX",
+    "p53",
+    "raw C/F",
+    "raw Radiology",
+    "radiology size"
+  ]
+}

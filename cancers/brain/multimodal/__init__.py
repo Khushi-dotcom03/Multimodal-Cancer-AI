@@ -1,1 +1,1 @@
-"""Brain multimodal assessment orchestration using existing model artifacts."""
+"""Patient-level UTSW MRI + clinical IDH fusion training and inference."""

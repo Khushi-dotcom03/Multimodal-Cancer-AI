@@ -1,0 +1,110 @@
+{
+  "C/F extraction": "Regex dictionary for ten explicit symptom groups. A symptom is present when mentioned without local negation or historical cue; absent only with explicit local negation; unknown when missing, historical without a current cue, or conflicting. \u2018No history of\u2019 is unknown rather than current absence. Raw C/F text is never passed to a model.",
+  "radiology eligibility": "Exclude the entire Radiology field on any subtype/glioma wording, diagnostic/differential language, other tumor/pathology wording, history/treatment wording, question mark, or missing text. Only safe-field structured observations enter C; unsafe/missing fields are unknown.",
+  "features": {
+    "symptoms": {
+      "headache": {
+        "rule": "headache|cephalalgia|head\\s+pain",
+        "present": 143,
+        "absent": 0,
+        "unknown": 184
+      },
+      "vomiting": {
+        "rule": "vomit|vomthings|emesis",
+        "present": 40,
+        "absent": 0,
+        "unknown": 287
+      },
+      "seizure": {
+        "rule": "seiz|\\bsz\\b|convuls|fits?",
+        "present": 80,
+        "absent": 0,
+        "unknown": 247
+      },
+      "limb_weakness": {
+        "rule": "weakness|hemipares|hemipleg|paresis",
+        "present": 52,
+        "absent": 0,
+        "unknown": 275
+      },
+      "dizziness": {
+        "rule": "dizz|gidd|vertigo",
+        "present": 18,
+        "absent": 0,
+        "unknown": 309
+      },
+      "loss_consciousness": {
+        "rule": "\\bloc\\b|loss\\s+of\\s+consciousness|unconscious|syncope",
+        "present": 4,
+        "absent": 1,
+        "unknown": 322
+      },
+      "memory": {
+        "rule": "memory|forgetfulness|amnesia",
+        "present": 13,
+        "absent": 0,
+        "unknown": 314
+      },
+      "speech": {
+        "rule": "slurr|speech|dysarth|aphas|language\\s+disturbance",
+        "present": 23,
+        "absent": 0,
+        "unknown": 304
+      },
+      "visual": {
+        "rule": "vision|visual|blur|diplopia|blind|dimness",
+        "present": 12,
+        "absent": 0,
+        "unknown": 315
+      },
+      "personality_behavior": {
+        "rule": "personality|behavio|irritab|aggressiv|mood\\s+change",
+        "present": 5,
+        "absent": 0,
+        "unknown": 322
+      }
+    },
+    "radiology": {
+      "t1_signal": {
+        "rule": "T1 modality must be near a hypo/hyper/iso/heterogeneous descriptor.",
+        "observed": 85,
+        "unknown": 242
+      },
+      "t2_flair_signal": {
+        "rule": "T2 or FLAIR modality must be near a signal descriptor.",
+        "observed": 91,
+        "unknown": 236
+      },
+      "enhancement": {
+        "rule": "Explicit enhancement or negation; subtype categories retained only when text states ring-like/homogeneous/heterogeneous.",
+        "observed": 68,
+        "unknown": 259
+      },
+      "edema": {
+        "rule": "Explicit edema mention or local negation.",
+        "observed": 26,
+        "unknown": 301
+      },
+      "mass_effect": {
+        "rule": "Explicit mass-effect mention or local negation.",
+        "observed": 7,
+        "unknown": 320
+      },
+      "midline_shift": {
+        "rule": "Explicit midline shift mention or local negation.",
+        "observed": 0,
+        "unknown": 327
+      },
+      "cystic_component": {
+        "rule": "Explicit cyst/cystic mention or local negation.",
+        "observed": 14,
+        "unknown": 313
+      },
+      "calcification": {
+        "rule": "Explicit calcification mention or local negation.",
+        "observed": 0,
+        "unknown": 327
+      }
+    }
+  }
+}

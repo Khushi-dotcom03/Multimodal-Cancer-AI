@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { BrainCircuit, Flame, Loader2 } from 'lucide-react'
 import { analysisService } from '@/services/analysis-service'
 import type { AnalysisResult } from '@/types'
+import { saveBrainChatContext } from '@/lib/brain-chat-context'
+import { BrainCancerScreeningStep, BrainClassificationStep } from './brain-two-step-result'
 import { BrainMRIUploader } from './brain-mri-uploader'
 
 const DISCLAIMER = 'This is an AI-based research and educational classification result. It is not a medical diagnosis and must not replace professional radiological evaluation.'
@@ -30,12 +32,26 @@ export function BrainImageWorkspace() {
       const outcome = await analysisService.analyze({ moduleId: 'brain-tumour', file })
       if (outcome.kind !== 'result' || outcome.result.isDemo) throw new Error('A real model result was not returned by the backend.')
       setResult(outcome.result)
+      saveBrainChatContext('brain_image', {
+        actualApplicationResult: {
+          prediction: outcome.result.prediction,
+          classification: outcome.result.classification,
+          uncalibratedScore: outcome.result.confidence,
+          classScores: outcome.result.classScores,
+          modelName: outcome.result.model.name,
+          architecture: outcome.result.model.architecture,
+          inferenceStatus: outcome.result.inferenceStatus ?? 'completed',
+        },
+      })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Brain MRI analysis failed. Please try again.')
     } finally { setBusy(false) }
   }
 
   const scores = result?.classScores
+  const predictedClass = result?.prediction.trim().toLowerCase() ?? ''
+  const isCancer = Boolean(result && !['no tumor', 'non-cancer', 'non cancer'].includes(predictedClass))
+  const tumorLabel = predictedClass === 'pituitary tumor' ? 'Pituitary' : result?.prediction
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-6 xl:grid-cols-5">
@@ -57,17 +73,23 @@ export function BrainImageWorkspace() {
       {busy && <div aria-live="polite" className="flex items-center justify-center gap-3 rounded-2xl border border-border bg-card p-10 text-sm font-medium"><Loader2 className="size-5 animate-spin text-wc-cyan" /> Running brain MRI inference…</div>}
 
       {result && <section aria-live="polite" className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-wc-violet">Predicted class</p><h2 className="mt-1 text-2xl font-bold">{result.prediction}</h2><p className="mt-1 text-sm text-muted-foreground">Model confidence score: <span className="font-semibold text-foreground">{(result.confidence * 100).toFixed(1)}%</span> · uncalibrated softmax score</p></div><span className="rounded-full bg-wc-violet/10 px-3 py-1 text-xs font-semibold text-wc-violet">{result.model.architecture}</span></div>
+        <BrainCancerScreeningStep
+          status={isCancer ? 'CANCER' : 'NON-CANCER'}
+          note={isCancer
+            ? `Mapped from the existing four-class image model output (${result.prediction}); the tumor type is shown below.`
+            : `The existing image model predicted ${result.prediction} with an uncalibrated class score of ${(result.confidence * 100).toFixed(1)}%.`}
+        />
 
-        <div className="grid gap-5 lg:grid-cols-2">
-          <div className="rounded-xl border border-border p-4">
-            <h3 className="flex items-center gap-2 text-sm font-semibold"><BrainCircuit className="size-4" /> Class scores</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Softmax model scores; not calibrated probabilities.</p>
-            <div className="mt-4 space-y-3">{Object.entries(scores ?? {}).map(([name, value]) => <div key={name}>
-              <div className="mb-1 flex justify-between gap-3 text-sm"><span className={name === result.classification ? 'font-semibold' : 'text-muted-foreground'}>{name}{name === result.classification ? ' · highest' : ''}</span><span className="font-mono">{(value * 100).toFixed(1)}%</span></div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted"><div className={`h-full rounded-full ${name === result.classification ? 'bg-wc-violet' : 'bg-wc-cyan/60'}`} style={{ width: `${Math.max(0, Math.min(100, value * 100))}%` }} /></div>
-            </div>)}</div>
-          </div>
+        {isCancer && <BrainClassificationStep title={tumorLabel ?? result.prediction} note={`Existing tumor-type output from ${result.model.architecture}. Its score is uncalibrated and is not a clinical confidence estimate.`}>
+          <h4 className="flex items-center gap-2 text-sm font-semibold"><BrainCircuit className="size-4" /> Class scores</h4>
+          <p className="mt-1 text-xs text-muted-foreground">Softmax model scores; not calibrated probabilities.</p>
+          <div className="mt-4 space-y-3">{Object.entries(scores ?? {}).map(([name, value]) => <div key={name}>
+            <div className="mb-1 flex justify-between gap-3 text-sm"><span className={name === result.classification ? 'font-semibold' : 'text-muted-foreground'}>{name}{name === result.classification ? ' · highest' : ''}</span><span className="font-mono">{(value * 100).toFixed(1)}%</span></div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted"><div className={`h-full rounded-full ${name === result.classification ? 'bg-wc-violet' : 'bg-wc-cyan/60'}`} style={{ width: `${Math.max(0, Math.min(100, value * 100))}%` }} /></div>
+          </div>)}</div>
+        </BrainClassificationStep>}
+
+        <div className="grid gap-5">
           <div className="rounded-xl border border-border p-4">
             <h3 className="flex items-center gap-2 text-sm font-semibold"><Flame className="size-4 text-wc-pink" /> MRI visualization</h3>
             <div className="mt-3 grid grid-cols-3 gap-2">{[

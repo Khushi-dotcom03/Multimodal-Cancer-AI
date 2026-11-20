@@ -5,13 +5,20 @@ import io
 import os
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, UnidentifiedImageError
 
+# Load local backend settings before any application modules read environment variables.
+# Existing process environment values take precedence over the project .env file.
+load_dotenv(Path(__file__).resolve().with_name(".env"), override=False)
+
 import fusion_utils as fu
+
 from cancers.brain.image.service import (
     BrainImageError,
     BrainModelUnavailable,
@@ -20,6 +27,7 @@ from cancers.brain.image.service import (
 )
 from cancers.brain.clinical.api import router as brain_clinical_router
 from cancers.brain.multimodal.api import router as brain_multimodal_router
+from cancers.brain.chatbot.api import router as brain_chatbot_router
 
 
 MODEL_DIR = os.getenv("MODEL_DIR", "models")
@@ -44,6 +52,7 @@ app.add_middleware(
 )
 app.include_router(brain_clinical_router)
 app.include_router(brain_multimodal_router)
+app.include_router(brain_chatbot_router)
 
 _models = None
 

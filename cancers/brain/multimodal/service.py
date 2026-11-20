@@ -1,4 +1,8 @@
-"""Compose existing brain image and clinical inference without score fusion."""
+"""Legacy parallel Brain outputs retained for the existing frontend contract.
+
+The genuinely trained IDH fusion model is exposed separately by inference.py and
+the /multimodal-idh-analysis endpoint; this compatibility service is not fusion.
+"""
 
 from __future__ import annotations
 
@@ -16,25 +20,11 @@ from cancers.brain.image.service import (
 
 
 class BrainMultimodalService:
-    """Run both pretrained models and return their separate, real outputs.
-
-    The models have incompatible target spaces and were not jointly trained on
-    paired examples, so this service deliberately does not blend their scores.
-    """
-
-    def analyze(
-        self,
-        image_bytes: bytes,
-        filename: str | None,
-        content_type: str | None,
-        age: float,
-        sex: str,
-        site: str | None,
-    ) -> dict:
+    def analyze(self, image_bytes: bytes, filename: str | None, content_type: str | None,
+                age: float, sex: str, site: str | None) -> dict:
         image = brain_image_service.decode_image(image_bytes, filename, content_type)
         image_result = brain_image_service.analyze(image)
         clinical_result = brain_clinical_service.analyze(age, sex, site)
-
         return {
             "analysisId": uuid.uuid4().hex,
             "imageResult": {
@@ -47,25 +37,11 @@ class BrainMultimodalService:
                 "disclaimer": image_result["disclaimer"],
             },
             "clinicalResult": clinical_result,
-            "resultScope": {
-                "kind": "parallel_model_outputs",
-                "fused": False,
-                "note": (
-                    "The image model classifies Glioma, Meningioma, No Tumor, or Pituitary Tumor. "
-                    "The separate clinical model estimates glioma subtype among the represented "
-                    "IPD-Brain glioma cohort. No brain-specific joint fusion checkpoint or paired "
-                    "training set is available, so these independent scores are not mathematically fused."
-                ),
-            },
+            "resultScope": {"kind": "parallel_model_outputs", "fused": False,
+                "note": "Legacy independent model outputs; use the trained IDH fusion endpoint for learned fusion."},
         }
 
 
 service = BrainMultimodalService()
 
-__all__ = [
-    "BrainClinicalModelUnavailable",
-    "BrainImageError",
-    "BrainModelUnavailable",
-    "BrainMultimodalService",
-    "service",
-]
+__all__ = ["BrainClinicalModelUnavailable", "BrainImageError", "BrainModelUnavailable", "BrainMultimodalService", "service"]

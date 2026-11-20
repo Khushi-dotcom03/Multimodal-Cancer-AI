@@ -11,3 +11,29 @@ export const BRAIN_LOCATION_GROUPS = [
 
 export const BRAIN_UNKNOWN = 'Unknown / not recorded'
 export const BRAIN_OTHER_SITE = '__other__'
+
+export type BrainClinicalScreeningStatus = 'insufficient' | 'suspicion' | 'no_indicators'
+
+export function getBrainClinicalScreeningStatus(
+  symptoms: Record<string, 'present' | 'absent' | 'unknown'>,
+  touched: Record<string, boolean>,
+  symptomKeys: readonly string[],
+): BrainClinicalScreeningStatus {
+  if (symptomKeys.length === 0 || symptomKeys.some((key) => !touched[key])) return 'insufficient'
+
+  const presentCount = symptomKeys.filter((key) => symptoms[key] === 'present').length
+  if (presentCount >= 2) return 'suspicion'
+  if (presentCount === 0) return 'no_indicators'
+  return 'insufficient'
+}
+
+export function hasRequiredBrainSubtypeInputs(age: string, gender: string, location: string) {
+  const numericAge = Number(age)
+  return age.trim() !== ''
+    && Number.isInteger(numericAge)
+    && numericAge >= 5
+    && numericAge <= 78
+    && (gender === 'Female' || gender === 'Male')
+    && location.trim() !== ''
+    && location !== BRAIN_OTHER_SITE
+}

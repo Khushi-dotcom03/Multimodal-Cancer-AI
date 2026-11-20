@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Brain,
   BookOpen,
   FileText,
   Info,
@@ -21,6 +22,7 @@ export const MAIN_NAV: NavItem[] = [
   { label: 'Overview', href: '/', icon: LayoutDashboard, description: 'Home dashboard and quick actions' },
   { label: 'Cancer Research Modules', href: '/modules', icon: Layers, description: 'Browse all research modules' },
   { label: 'Image Analysis', href: '/analysis', icon: ScanSearch, description: 'Skin cancer image analysis workspace' },
+  { label: 'Brain AI Assistant', href: '/brain-chatbot', icon: Brain, description: 'Brain tumor, MRI and biomarker education assistant' },
   { label: 'Research Dashboard', href: '/dashboard', icon: BarChart3, description: 'Model evaluation and analytics' },
   { label: 'Reports', href: '/reports', icon: FileText, description: 'Research report management' },
   { label: 'Research Library', href: '/library', icon: BookOpen, description: 'Articles, publications and resources' },
