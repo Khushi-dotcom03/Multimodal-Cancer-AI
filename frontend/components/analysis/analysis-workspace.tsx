@@ -10,7 +10,7 @@ import { CombinedAnalysisWorkspace } from './combined-analysis-workspace'
 
 export type AnalysisPhase = 'idle' | 'uploading' | 'processing' | 'done' | 'error'
 
-export function AnalysisWorkspace({ moduleId = 'skin-cancer' }: { moduleId?: string }) {
+export function AnalysisWorkspace({ moduleId = 'skin-cancer', moduleName: _moduleName = 'Skin Cancer', uploadTitle = 'Image Upload', uploadDescription = 'Dermoscopic or clinical skin lesion image.', uploadLabel: _uploadLabel = 'Uploaded image' }: { moduleId?: string; moduleName?: string; uploadTitle?: string; uploadDescription?: string; uploadLabel?: string }) {
   const [file, setFile] = useState<File | null>(null)
   const [clinical, setClinical] = useState<ClinicalDetails>({ age: null, sex: 'unknown', localization: 'unknown' })
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -42,7 +42,7 @@ export function AnalysisWorkspace({ moduleId = 'skin-cancer' }: { moduleId?: str
     setPhase('uploading')
     const toProcessing = setTimeout(() => setPhase('processing'), 500)
     try {
-      const result = await analysisService.analyze({ cancerType: 'skin', moduleId, file, ...clinical })
+      const result = await analysisService.analyze({ cancerType: moduleId.startsWith('lung-') || moduleId.startsWith('breast-') ? undefined : 'skin', moduleId, file, ...clinical })
       setOutcome(result)
       setPhase('done')
     } catch (e) {
@@ -61,7 +61,7 @@ export function AnalysisWorkspace({ moduleId = 'skin-cancer' }: { moduleId?: str
     <div className="flex flex-col gap-6">
       <div className="grid gap-6 xl:grid-cols-5">
         <div className="xl:col-span-3">
-          <ImageUploader file={file} previewUrl={previewUrl} onFileChange={handleFile} disabled={busy} />
+          <ImageUploader file={file} previewUrl={previewUrl} onFileChange={handleFile} disabled={busy} title={uploadTitle} description={uploadDescription} />
         </div>
         <div className="xl:col-span-2">
           <AnalysisControls
@@ -71,7 +71,7 @@ export function AnalysisWorkspace({ moduleId = 'skin-cancer' }: { moduleId?: str
             clinical={clinical}
             onClinicalChange={setClinical}
             moduleId={moduleId}
-            clinicalEnabled={moduleId !== 'skin-image-analysis'}
+            clinicalEnabled={moduleId !== 'skin-image-analysis' && moduleId !== 'lung-cancer-image' && moduleId !== 'breast-cancer-image'}
           />
         </div>
       </div>

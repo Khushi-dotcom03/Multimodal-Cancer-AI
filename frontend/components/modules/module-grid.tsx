@@ -20,7 +20,7 @@ export function ModuleGrid({ modules }: { modules: ResearchModule[] }) {
 
 export function ModuleCard({ module: m }: { module: ResearchModule }) {
   const accent = ACCENT_STYLES[m.accent]
-  const available = m.status === 'available'
+  const available = m.status !== 'coming-soon'
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm shadow-slate-900/[0.03] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/8">
@@ -34,10 +34,12 @@ export function ModuleCard({ module: m }: { module: ResearchModule }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-wc-navy/70 via-transparent to-transparent" aria-hidden />
         <div className="absolute top-3 left-3">
-          {available ? (
+          {m.status === 'available' ? (
             <Badge tone="emerald" className="bg-emerald-500/90 text-white ring-0 dark:text-white">
               <span className="size-1.5 rounded-full bg-white" aria-hidden /> Available
             </Badge>
+          ) : m.status === 'configuration-required' ? (
+            <Badge tone="amber" className="bg-wc-navy/70 text-amber-200 ring-white/15 backdrop-blur dark:text-amber-200">Configuration Required</Badge>
           ) : (
             <Badge tone="amber" className="bg-wc-navy/70 text-amber-200 ring-white/15 backdrop-blur dark:text-amber-200">
               <Clock className="size-3" aria-hidden /> Coming Soon

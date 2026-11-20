@@ -11,7 +11,7 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
       <PageHeader
         eyebrow="Research Modules"
         title="Cancer Research Modules"
-        description="Each module is an independent research area. Skin Cancer is the initial research prototype; other modules are in development and do not yet have working models."
+        description="Explore the four cancer research areas and their existing module-specific interfaces. Brain model inference requires the original checkpoint and clinical CSV to be supplied locally."
       />
       <ModuleExplorer initialQuery={q ?? ''} />
     </div>

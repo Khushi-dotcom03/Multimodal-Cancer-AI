@@ -72,6 +72,7 @@ export interface AnalysisResult {
   gradcam?: { available: boolean; heatmap?: string | null; overlay?: string | null }
   disclaimer?: string
   inferenceStatus?: string
+  validatorProbability?: number | null
 }
 
 export type AnalysisOutcome =

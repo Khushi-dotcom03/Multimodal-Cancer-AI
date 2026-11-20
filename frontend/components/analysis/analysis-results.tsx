@@ -16,12 +16,15 @@ interface Props {
   onRetry: () => void
   title?: string
   description?: string
+  emptyDescription?: string
+  showVisualExplanation?: boolean
+  probabilities?: Record<string, number>
 }
 
-export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, title = 'Research Results', description = 'Model output, explanation and metadata.' }: Props) {
+export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, title = 'Research Results', description = 'Model output, explanation and metadata.', emptyDescription = 'Upload an image and select Analyze Image to view research output here.', showVisualExplanation = true }: Props) {
   const router = useRouter()
   const result = outcome?.kind === 'result' ? outcome.result : null
-  const imageOnlyResult = result?.moduleId === 'skin-image-analysis'
+  const imageOnlyResult = result?.moduleId === 'skin-image-analysis' || result?.moduleId === 'breast-cancer-image'
   const inputImageUrl = result?.originalImageUrl ?? previewUrl
   const pending = outcome?.kind === 'pending'
   const busy = phase === 'uploading' || phase === 'processing'
@@ -50,7 +53,7 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
         {phase === 'error' && error && (
           <EmptyState
             icon={AlertTriangle}
-            title="Analysis could not be completed"
+            title={error.trim().toLowerCase().startsWith('invalid image:') ? 'Invalid image' : 'Analysis could not be completed'}
             description={error}
             className="border-red-500/30 bg-red-500/5"
             action={
@@ -61,7 +64,7 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
           />
         )}
 
-        {phase === 'idle' && <EmptyState icon={Hourglass} title="No analysis yet" description="Upload an image and select Analyze Image to view research output here." />}
+        {phase === 'idle' && <EmptyState icon={Hourglass} title="No analysis yet" description={emptyDescription} />}
 
         {phase === 'done' && (pending || result) && (
           <div className="flex flex-col gap-5">
@@ -98,20 +101,20 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
                   </dl>
                 </div>}
                 {result.probabilities && <div className="grid gap-4 xl:grid-cols-3">
-                  <ProbabilityPanel title={imageOnlyResult ? 'Image-only ResNet-18' : 'Image + clinical fusion'} values={result.probabilities} names={result.classNames ?? {}} />
+                  <ProbabilityPanel title={result.moduleId === 'breast-cancer-image' ? 'BUSI MobileNetV2 class scores' : imageOnlyResult ? 'Image-only ResNet-18' : 'Image + clinical fusion'} values={result.probabilities} names={result.classNames ?? {}} />
                   {result.imageOnlyProbabilities && <ProbabilityPanel title="Image-only ResNet-18" values={result.imageOnlyProbabilities} names={result.classNames ?? {}} />}
                   {result.clinicalOnlyProbabilities && <ProbabilityPanel title="Clinical-only MLP" values={result.clinicalOnlyProbabilities} names={result.classNames ?? {}} />}
                 </div>}
-                <button type="button" onClick={() => router.push(`/reports?analysisId=${encodeURIComponent(result.analysisId)}`)} className="inline-flex h-10 items-center justify-center self-start rounded-xl border border-border bg-card px-4 text-sm font-semibold hover:bg-muted">
+                {result.moduleId !== 'breast-cancer-image' && <button type="button" onClick={() => router.push(`/reports?analysisId=${encodeURIComponent(result.analysisId)}`)} className="inline-flex h-10 items-center justify-center self-start rounded-xl border border-border bg-card px-4 text-sm font-semibold hover:bg-muted">
                   View detailed research report
-                </button>
+                </button>}
               </>
             )}
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-border p-4">
+                {showVisualExplanation && <div className="rounded-xl border border-border p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold">
-                  <Flame className="size-4 text-wc-pink" aria-hidden /> Visual explanation / heatmap
+                  <Flame className="size-4 text-wc-pink" aria-hidden /> {result?.moduleId === 'breast-cancer-image' ? 'Input image and validation' : 'Visual explanation / heatmap'}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <figure className="flex flex-col gap-1.5">
@@ -125,14 +128,12 @@ export function AnalysisResults({ phase, outcome, error, previewUrl, onRetry, ti
                       {result?.heatmapUrl ? (
                         <img src={result.heatmapUrl} alt="Model attention heatmap" className="size-full object-cover" />
                       ) : (
-                        <span className="text-xs text-muted-foreground">Heatmap available after model integration (e.g. Grad-CAM)</span>
+                        <span className="text-xs text-muted-foreground">{result?.moduleId === 'breast-cancer-image' ? `The existing BUSI model does not generate a heatmap. Ultrasound validator score: ${result.validatorProbability == null ? 'unavailable' : `${(result.validatorProbability * 100).toFixed(1)}%`}.` : 'Heatmap available after model integration (e.g. Grad-CAM)'}</span>
                       )}
                     </div>
                     <figcaption className="text-xs text-muted-foreground">Explanation map</figcaption>
                   </figure>
-                </div>
-              </div>
-
+                </div></div>}
               <div className="rounded-xl border border-border p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold">
                   <Cpu className="size-4 text-wc-violet" aria-hidden /> Model information

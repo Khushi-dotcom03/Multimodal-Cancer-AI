@@ -1,7 +1,29 @@
-# Multimodal AI for Personalized Cancer Diagnosis
+# Multimodal Cancer AI Research Project
 
-Skin lesion classification on HAM10000 using dermoscopy images and patient metadata
-(age, sex, lesion localization), with Grad-CAM explanations and a Streamlit demo.
+Four independent cancer research modules are grouped under `cancer_modules/`.
+The project includes original module applications, models, assets, research data
+and a shared Next.js frontend plus FastAPI backend. Research outputs are not
+clinical diagnoses.
+
+## Project structure
+
+```text
+cancer_modules/
+  lung_cancer/       CT image, clinical and image-plus-clinical workflows
+  breast_cancer/     Three existing image, clinical and evidence-review modules
+  skin_cancer/       Branch backend plus preserved standalone implementation
+  brain_cancer/      MRI, clinical and multimodal APIs and evaluation artifacts
+frontend/            Common Next.js application for all four modules
+api.py                Common FastAPI application
+requirements.txt      Shared Python dependencies (user-maintained local edits preserved)
+```
+
+## Cancer modules
+
+- **Lung Cancer:** `/lung` in the common frontend. Image, clinical and independent image-plus-clinical analysis use the existing Lung module API and models. The image model accepts 2D image slices only; it does not process 3D volumes.
+- **Breast Cancer:** `/breast` links to the three existing Streamlit tools. Their outputs remain separate; the evidence-review module does not create a joint score.
+- **Skin Cancer:** `/analysis` and the existing skin-specific pages use the Skin backend under `cancer_modules/skin_cancer/backend/`. The preserved earlier Streamlit implementation is under `cancer_modules/skin_cancer/standalone/`.
+- **Brain Cancer:** `/brain-image`, `/brain-clinical`, and `/brain-multimodal` call the existing Brain APIs. The original MRI checkpoint and IPD-Brain CSV are not included and must be supplied locally.
 
 ## Method
 - **Image model:** ResNet-18 (ImageNet pretrained), 7 classes
@@ -20,9 +42,33 @@ Skin lesion classification on HAM10000 using dermoscopy images and patient metad
 
 Grad-CAM examples: `results/gradcam_examples.png`, `results/gradcam_errors.png`
 
-## Run the demo
-    pip install -r requirements.txt
-    streamlit run app.py
+## Run the common project
+
+Install the shared requirements, then run the API from the repository root:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m uvicorn api:app --reload --port 8000
+```
+
+Run the shared frontend in a second terminal:
+
+```powershell
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Set `NEXT_PUBLIC_API_URL=http://localhost:8000` in the frontend environment.
+The Lung fusion page proxies to the same API by default; set `LUNG_API_URL` only
+if the shared API uses a different address.
+
+The Breast Cancer page links to the original Streamlit tools on ports 8501–8503.
+Run each from its module folder, using `image_dashboard.py` (Module 1),
+`breast_health_assessment.py` (Module 2), or `evidence_viewer.py` (Module 3).
+Use the module-level requirements when a model's TensorFlow/PyTorch versions
+conflict with another module; these stacks are not all compatible in one Python
+environment.
 
 Models are loaded from `models/` (`resnet18_best.pth`, `fusion_best.pth`, `clinical_preprocessor.joblib`).
 
@@ -53,14 +99,14 @@ For the existing Vercel project, set **Root Directory** to `frontend` and add `N
 
 The API is a research prototype. Its predictions must not be used for clinical diagnosis or treatment decisions.
 
-## Repo structure
-- `app.py`, `fusion_utils.py`: Streamlit app, model classes, Grad-CAM
-- `api.py`: FastAPI backend for the frontend
-- `frontend/`: Next.js WeCure web app
-- `models/`: trained weights and preprocessor
-- `results/`: metrics, predictions, confusion matrices, plots
-- `notebooks/`: Kaggle notebooks (training and evaluation)
-- `data/split.csv`: train/val/test split
+## Model and data availability
+
+The Brain module requires the original `best_model.pth` at
+`cancer_modules/brain_cancer/weights/best_model.pth` and the clinical CSV at
+`cancer_modules/brain_cancer/data/brain cancer/IPD_Brain.csv`. Neither is
+included. Do not substitute fabricated weights or clinical data. Other modules
+also depend on their own model files and datasets as described in their
+module-specific READMEs.
 
 ## Data
 HAM10000 (Kaggle: "Skin Cancer MNIST: HAM10000"). Images are not included in this repo.

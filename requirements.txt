@@ -10,3 +10,4 @@ joblib
 fastapi
 uvicorn[standard]
 python-multipart
+tensorflow==2.21.0

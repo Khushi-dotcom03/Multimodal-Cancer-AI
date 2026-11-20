@@ -74,11 +74,11 @@ export function AnalysisControls({
     (clinical.sex === 'unknown' || clinical.localization === 'unknown')
 
   const modelKey =
-    moduleId === 'skin-image-analysis' ? moduleId : 'skin-cancer'
+    moduleId === 'skin-image-analysis' ? moduleId : moduleId === 'breast-cancer-image' ? null : 'skin-cancer'
 
   const { data: modelInfo } = useSWR(
-    isApiConfigured ? `model:${modelKey}` : null,
-    () => modulesService.getModelInfo(modelKey),
+    isApiConfigured && modelKey ? `model:${modelKey}` : null,
+    () => modulesService.getModelInfo(modelKey ?? 'skin-cancer'),
   )
 
   return (

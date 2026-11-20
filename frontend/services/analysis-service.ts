@@ -31,19 +31,29 @@ export const analysisService = {
       if (moduleId === 'brain-tumour') {
         throw new Error('Brain MRI analysis backend is not configured. Set NEXT_PUBLIC_API_URL and start the FastAPI server.')
       }
+      if (moduleId === 'lung-cancer-image') {
+        throw new Error('Lung image analysis backend is not configured. Set NEXT_PUBLIC_API_URL and start the FastAPI server.')
+      }
+      if (moduleId === 'breast-cancer-image') {
+        throw new Error('Breast ultrasound analysis backend is not configured. Start the FastAPI server and set NEXT_PUBLIC_API_URL.')
+      }
       await new Promise((r) => setTimeout(r, 900))
       return { kind: 'pending', message: MODEL_PENDING_MESSAGE }
     }
 
     const form = new FormData()
     form.append('file', file)
-    if (moduleId !== 'skin-image-analysis' && moduleId !== 'brain-tumour') {
+    if (moduleId !== 'skin-image-analysis' && moduleId !== 'breast-cancer-image' && moduleId !== 'brain-tumour' && moduleId !== 'lung-cancer-image') {
       if (age != null) form.append('age', String(age))
       if (sex) form.append('sex', sex)
       if (localization) form.append('localization', localization)
     }
     const path = moduleId === 'brain-tumour'
       ? '/api/v1/analysis/brain-tumour'
+      : moduleId === 'breast-cancer-image'
+        ? '/api/v1/analysis/breast-cancer-image'
+      : moduleId === 'lung-cancer-image'
+        ? '/api/v1/analysis/lung-cancer-image'
       : moduleId === 'skin-image-analysis'
         ? `/api/v1/cancers/${cancerType ?? 'skin'}/image-analysis`
         : `/api/v1/cancers/${cancerType ?? 'skin'}/multimodal-analysis`

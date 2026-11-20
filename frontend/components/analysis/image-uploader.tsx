@@ -12,9 +12,11 @@ interface ImageUploaderProps {
   previewUrl: string | null
   onFileChange: (file: File | null) => void
   disabled?: boolean
+  title?: string
+  description?: string
 }
 
-export function ImageUploader({ file, previewUrl, onFileChange, disabled }: ImageUploaderProps) {
+export function ImageUploader({ file, previewUrl, onFileChange, disabled, title = 'Image Upload', description = 'Dermoscopic or clinical skin lesion image.' }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -34,7 +36,7 @@ export function ImageUploader({ file, previewUrl, onFileChange, disabled }: Imag
 
   return (
     <Panel className="h-full">
-      <PanelHeader title="Image Upload" description="Dermoscopic or clinical skin lesion image." icon={ImagePlus} />
+      <PanelHeader title={title} description={description} icon={ImagePlus} />
       <div className="p-5 sm:p-6">
         <input
           ref={inputRef}

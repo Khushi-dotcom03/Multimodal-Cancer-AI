@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
-import { Loader2, Stethoscope } from 'lucide-react'
+import { Activity, Loader2, Stethoscope } from 'lucide-react'
 import { Badge, EmptyState, inputClass, Panel, PanelHeader } from '@/components/common/primitives'
 import { isApiConfigured } from '@/lib/api-client'
 import {
