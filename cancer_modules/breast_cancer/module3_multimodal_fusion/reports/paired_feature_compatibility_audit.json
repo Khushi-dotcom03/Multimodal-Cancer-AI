@@ -1,0 +1,72 @@
+{
+  "purpose": "Determine whether the exact Module 1 and Module 2 inputs can support patient-linked breast cancer fusion.",
+  "module1_image_input": "BUSI ultrasound image uploaded by the user",
+  "module2_clinical_inputs": [
+    "Age at Diagnosis",
+    "Tumor Size",
+    "ER Status",
+    "PR Status",
+    "HER2 Status"
+  ],
+  "required_ground_truth": "Reliable patient/lesion-level benign or malignant outcome",
+  "local_datasets": {
+    "BrEaST_TCIA": {
+      "case_image_matches": 256,
+      "unique_case_ids": 256,
+      "unique_image_files": 256,
+      "labels": {
+        "benign": 154,
+        "malignant": 98,
+        "normal": 4
+      },
+      "clinical_fields": [
+        "Age",
+        "Tissue_composition",
+        "Signs",
+        "Symptoms"
+      ],
+      "missing_required_module2_fields": [
+        "Tumor Size",
+        "ER Status",
+        "PR Status",
+        "HER2 Status"
+      ],
+      "age_semantics_verified_equivalent_to_Age_at_Diagnosis": false,
+      "compatible_for_module1_module2_fusion": false,
+      "reason": "BrEaST's case-linked clinical schema does not contain four of Module 2's five required input fields. Its different fields cannot be substituted."
+    },
+    "BUSI": {
+      "ultrasound_and_image_labels_present": true,
+      "patient_linked_module2_clinical_inputs_present": false,
+      "compatible_for_module1_module2_fusion": false
+    },
+    "Module2_METABRIC": {
+      "clinical_records_present": true,
+      "BUSI_patient_linkage_verified": false,
+      "ultrasound_images_patient_linked": false,
+      "compatible_for_module1_module2_fusion": false,
+      "reason": "METABRIC identifiers are not a verified key to BUSI image filenames or BrEaST CaseID."
+    }
+  },
+  "public_candidate_review": [
+    {
+      "dataset": "BUSI-WHU",
+      "source": "https://data.mendeley.com/datasets/k6cpmwybk3/3",
+      "published_metadata": "927 ultrasound images, benign/malignant cases, patient information XLSX, CC BY 4.0",
+      "all_five_module2_fields_and_image_identifier_mapping_verified": false,
+      "decision": "Not used. Publicly inspectable metadata does not establish complete field-level compatibility and per-image patient mapping."
+    },
+    {
+      "dataset": "2025 multicenter ABVS HER2 study",
+      "source": "https://doi.org/10.3389/fonc.2025.1556317",
+      "published_cohort": "384 lesions from 379 cancer patients; age, lesion size, ER, PR, HER2 and ultrasound images reported",
+      "benign_and_malignant_ground_truth_available_for_fusion_task": false,
+      "public_patient_level_training_records_verified": false,
+      "decision": "Not used. The described cohort contains pathologically confirmed cancer patients for HER2 classification; it is not a publicly verified benign/malignant fusion dataset matching Module 2 inputs."
+    }
+  ],
+  "conclusion": "No genuinely patient-linked dataset matching the exact Module 1 image input, all five Module 2 features, and benign/malignant ground truth has been verified in the local project or inspected public dataset descriptions.",
+  "active_fusion_model_exists": false,
+  "previous_breast_paired_fusion_artifact_preserved_but_used": false,
+  "safety_action": "Module 3 runs Modules 1 and 2 inference independently and returns fusion unavailable; it does not generate a combined prediction or score."
+}

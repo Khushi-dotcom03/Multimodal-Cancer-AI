@@ -1,0 +1,208 @@
+{
+  "dataset": "BrEaST / TCIA Breast-Lesions-USG",
+  "task": "Binary lesion classification: malignant=1 vs benign=0",
+  "dataset_citation": "Pawlowska et al., Scientific Data 11, 148 (2024), DOI 10.1038/s41597-024-02984-z; TCIA DOI 10.7937/9WKK-Q141",
+  "license": "CC BY 4.0; attribution required; follow TCIA Data Usage Policy",
+  "created_at_utc": "2026-11-20T17:02:00.375921+00:00",
+  "patient_count_all_labels": 256,
+  "binary_patient_count": 252,
+  "normal_cases_excluded_from_binary_training": 4,
+  "training_class_counts": {
+    "benign": 154,
+    "malignant": 98
+  },
+  "clinical_inputs": [
+    "Age",
+    "Tissue_composition",
+    "Signs",
+    "Symptoms"
+  ],
+  "excluded_target_leakage_fields": [
+    "BIRADS",
+    "Interpretation",
+    "Verification",
+    "Diagnosis",
+    "Classification"
+  ],
+  "evaluation": {
+    "method": "5-fold StratifiedGroupKFold by official CaseID; 4-fold grouped OOF stacking within each training fold",
+    "threshold_note": "0.5 is a fixed exploratory display threshold, not a clinically selected operating point.",
+    "outer_patient_folds": [
+      {
+        "fold": 1,
+        "train_patients": 202,
+        "test_patients": 50,
+        "train_class_counts": {
+          "benign": 129,
+          "malignant": 73
+        },
+        "test_class_counts": {
+          "benign": 25,
+          "malignant": 25
+        },
+        "patient_overlap": false
+      },
+      {
+        "fold": 2,
+        "train_patients": 201,
+        "test_patients": 51,
+        "train_class_counts": {
+          "benign": 120,
+          "malignant": 81
+        },
+        "test_class_counts": {
+          "benign": 34,
+          "malignant": 17
+        },
+        "patient_overlap": false
+      },
+      {
+        "fold": 3,
+        "train_patients": 201,
+        "test_patients": 51,
+        "train_class_counts": {
+          "benign": 119,
+          "malignant": 82
+        },
+        "test_class_counts": {
+          "benign": 35,
+          "malignant": 16
+        },
+        "patient_overlap": false
+      },
+      {
+        "fold": 4,
+        "train_patients": 202,
+        "test_patients": 50,
+        "train_class_counts": {
+          "benign": 120,
+          "malignant": 82
+        },
+        "test_class_counts": {
+          "benign": 34,
+          "malignant": 16
+        },
+        "patient_overlap": false
+      },
+      {
+        "fold": 5,
+        "train_patients": 202,
+        "test_patients": 50,
+        "train_class_counts": {
+          "benign": 128,
+          "malignant": 74
+        },
+        "test_class_counts": {
+          "benign": 26,
+          "malignant": 24
+        },
+        "patient_overlap": false
+      }
+    ],
+    "models": {
+      "image": {
+        "threshold": 0.5,
+        "sensitivity_malignant": 0.5816326530612245,
+        "specificity_benign": 0.5974025974025974,
+        "f1_malignant": 0.5253456221198156,
+        "roc_auc": 0.6467002385369732,
+        "confusion_matrix_labels": [
+          "Benign",
+          "Malignant"
+        ],
+        "confusion_matrix_rows_true_columns_predicted": [
+          [
+            92,
+            62
+          ],
+          [
+            41,
+            57
+          ]
+        ],
+        "class_counts": {
+          "benign": 154,
+          "malignant": 98
+        },
+        "prediction_counts": {
+          "benign": 133,
+          "malignant": 119
+        }
+      },
+      "clinical": {
+        "threshold": 0.5,
+        "sensitivity_malignant": 0.7346938775510204,
+        "specificity_benign": 0.7467532467532467,
+        "f1_malignant": 0.6889952153110048,
+        "roc_auc": 0.8033726477604028,
+        "confusion_matrix_labels": [
+          "Benign",
+          "Malignant"
+        ],
+        "confusion_matrix_rows_true_columns_predicted": [
+          [
+            115,
+            39
+          ],
+          [
+            26,
+            72
+          ]
+        ],
+        "class_counts": {
+          "benign": 154,
+          "malignant": 98
+        },
+        "prediction_counts": {
+          "benign": 141,
+          "malignant": 111
+        }
+      },
+      "fusion": {
+        "threshold": 0.5,
+        "sensitivity_malignant": 0.7959183673469388,
+        "specificity_benign": 0.551948051948052,
+        "f1_malignant": 0.636734693877551,
+        "roc_auc": 0.7815398886827458,
+        "confusion_matrix_labels": [
+          "Benign",
+          "Malignant"
+        ],
+        "confusion_matrix_rows_true_columns_predicted": [
+          [
+            85,
+            69
+          ],
+          [
+            20,
+            78
+          ]
+        ],
+        "class_counts": {
+          "benign": 154,
+          "malignant": 98
+        },
+        "prediction_counts": {
+          "benign": 105,
+          "malignant": 147
+        }
+      }
+    },
+    "calibration": {
+      "calibrated": false,
+      "assessment": "Not performed; out-of-fold scores from this small single cohort are not an independent calibration set."
+    }
+  },
+  "calibration": {
+    "calibrated": false,
+    "probability_claim_permitted": false,
+    "production_or_clinical_validation": false,
+    "display_label": "Experimental risk score (uncalibrated)"
+  },
+  "limitations": [
+    "Small, single public cohort; cross-validation is internal and not external validation.",
+    "Only four normal cases; normal-class performance was not estimated.",
+    "The model score is uncalibrated and must not be represented as a cancer probability or diagnosis.",
+    "At inference, paired-case identity is user-attested and cannot be independently verified by this application."
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "status": "research_candidate_not_clinically_validated",
+  "dataset": "Clinical_dataset.xlsx.txt",
+  "patient_count": 2388,
+  "labeled_record_count": 2388,
+  "class_counts": {
+    "1": 214,
+    "2": 976,
+    "3": 1198
+  },
+  "patient_grouped_stratified_cv": {
+    "fold_count": 5,
+    "mean_accuracy": 0.5485601256107295,
+    "mean_macro_f1": 0.4592209869038525,
+    "mean_recall_by_grade": {
+      "1": 0.2521594684385382,
+      "2": 0.511287284144427,
+      "3": 0.6318863319386332
+    },
+    "folds": [
+      {
+        "fold": 1,
+        "accuracy": 0.5774058577405857,
+        "macro_f1": 0.47803423643981174,
+        "recall_by_grade": {
+          "1": 0.23255813953488372,
+          "2": 0.558974358974359,
+          "3": 0.6541666666666667
+        }
+      },
+      {
+        "fold": 2,
+        "accuracy": 0.5502092050209205,
+        "macro_f1": 0.4636227320437847,
+        "recall_by_grade": {
+          "1": 0.27906976744186046,
+          "2": 0.49743589743589745,
+          "3": 0.6416666666666667
+        }
+      },
+      {
+        "fold": 3,
+        "accuracy": 0.5564853556485355,
+        "macro_f1": 0.4821329702745632,
+        "recall_by_grade": {
+          "1": 0.32558139534883723,
+          "2": 0.5538461538461539,
+          "3": 0.6
+        }
+      },
+      {
+        "fold": 4,
+        "accuracy": 0.5408805031446541,
+        "macro_f1": 0.4417758624944314,
+        "recall_by_grade": {
+          "1": 0.20930232558139536,
+          "2": 0.4512820512820513,
+          "3": 0.6736401673640168
+        }
+      },
+      {
+        "fold": 5,
+        "accuracy": 0.5178197064989518,
+        "macro_f1": 0.4305391332666713,
+        "recall_by_grade": {
+          "1": 0.21428571428571427,
+          "2": 0.49489795918367346,
+          "3": 0.5899581589958159
+        }
+      }
+    ]
+  },
+  "class_weight": "balanced",
+  "features": [
+    "Age at Diagnosis",
+    "Tumor Size",
+    "ER Status",
+    "PR Status",
+    "HER2 Status"
+  ],
+  "target": "Neoplasm Histologic Grade",
+  "sklearn_version": "1.9.1",
+  "artifact": "clinical_grade_balanced_candidate.pkl",
+  "limitation": "Class-balanced model candidate; modest retrospective metrics do not establish clinical validity."
+}

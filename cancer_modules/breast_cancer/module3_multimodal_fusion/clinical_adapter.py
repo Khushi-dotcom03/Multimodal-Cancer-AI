@@ -11,6 +11,7 @@ from collections.abc import Mapping
 
 import numpy as np
 import pandas as pd
+import sklearn
 
 
 FEATURE_NAMES = (
@@ -62,8 +63,10 @@ def _load_model() -> Any:
         return joblib.load(MODEL_PATH)
     except Exception as exc:
         raise RuntimeError(
-            "Could not load the clinical model. Check that joblib and the "
-            "scikit-learn version are compatible with the saved pipeline. "
+            "Could not load the clinical model. This saved pipeline requires "
+            "a compatible scikit-learn version (the project pins 1.6.1); "
+            f"the active environment has scikit-learn {sklearn.__version__}. "
+            "Run the app from the project's configured Python environment. "
             f"Original error: {type(exc).__name__}: {exc}"
         ) from exc
 

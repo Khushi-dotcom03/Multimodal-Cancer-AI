@@ -1,47 +1,29 @@
 import type { Metadata } from 'next'
-import { ExternalLink, Layers3 } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import { BreastCombinedAnalysisWorkspace } from '@/components/analysis/breast-combined-analysis-workspace'
 import { BreastCancerModuleNav } from '@/components/analysis/breast-cancer-module-nav'
 import { ResearchDisclaimer } from '@/components/common/brand'
-import { PageHeader, Panel } from '@/components/common/primitives'
+import { PageHeader } from '@/components/common/primitives'
 
 export const metadata: Metadata = {
   title: 'Breast Cancer Combined Analysis',
-  description: 'Review breast image and clinical model outputs together while keeping results separate.',
+  description: 'Review independent breast ultrasound and clinical grade research outputs. No combined cancer score is generated.',
 }
-
-const evidenceViewerUrl = 'http://127.0.0.1:8503/?embed=true'
 
 export default function BreastEvidenceReviewPage() {
   return (
     <div className="flex flex-col gap-6">
+      <Link href="/modules" className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" /> All cancer modules
+      </Link>
       <PageHeader
-        eyebrow="Breast Cancer · Combined Analysis"
+        eyebrow="Breast Cancer | Module 3"
         title="Combined Analysis"
-        description="Review image and clinical model outputs together. The results remain separate and are not combined into a score or diagnosis."
+        description="Run the existing Module 1 ultrasound and Module 2 clinical pipelines independently using their existing inputs. Fusion is unavailable without compatible patient-linked training data."
       />
-
       <BreastCancerModuleNav />
-
-      <Panel className="overflow-hidden p-2 sm:p-3">
-        <iframe
-          src={evidenceViewerUrl}
-          title="Breast Cancer Combined Analysis"
-          className="h-[calc(100vh-16rem)] min-h-[720px] w-full rounded-lg border-0 bg-[#081522]"
-          allow="clipboard-read; clipboard-write"
-        />
-      </Panel>
-
-      <a
-        href={evidenceViewerUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary"
-      >
-        <Layers3 className="size-4" aria-hidden />
-        Open Combined Analysis in a new tab
-        <ExternalLink className="size-4" aria-hidden />
-      </a>
-
+      <BreastCombinedAnalysisWorkspace />
       <ResearchDisclaimer />
     </div>
   )

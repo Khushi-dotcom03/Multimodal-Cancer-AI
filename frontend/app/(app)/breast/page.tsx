@@ -24,8 +24,8 @@ export default function BreastPage() {
 
       <Panel className="flex flex-col gap-4 p-5">
         <div className="flex items-center gap-2 font-semibold"><Layers3 className="size-5 text-wc-pink" />Combined Analysis</div>
-        <p className="text-sm text-muted-foreground">Review image and clinical model outputs separately without combining them.</p>
-        <p className="text-xs text-muted-foreground">Independent image and clinical evidence</p>
+        <p className="text-sm text-muted-foreground">Run the ultrasound and clinical grade models together, review both outputs, and view the experimental combined score.</p>
+        <p className="text-xs text-muted-foreground">Separate results with an uncalibrated research score</p>
         <div className="mt-auto">
           <Link href="/breast-evidence-review" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">Open Combined Analysis <ExternalLink className="size-4" /></Link>
         </div>

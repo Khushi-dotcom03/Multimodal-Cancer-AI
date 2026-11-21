@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from 'react'
 import { Activity, ClipboardCheck, Loader2, Stethoscope } from 'lucide-react'
-import { apiRequest, isApiConfigured } from '@/lib/api-client'
 import { Badge, inputClass, Panel, PanelHeader } from '@/components/common/primitives'
 
 type Answer = '' | 'Yes' | 'No' | 'Not sure'
@@ -28,6 +27,8 @@ type GradeResult = {
   predictedGrade: number
   predictedGradeLabel: string
   message: string
+  gradeScores: { grade: number; voteShare: number }[]
+  evaluation: { accuracy: number; macroF1: number; recallByGrade: Record<string, number>; method: string }
   model: {
     name: string
     architecture: string
@@ -123,10 +124,10 @@ export function BreastClinicalWorkspace() {
     setGradeError(null)
     setGradeResult(null)
     try {
-      if (!isApiConfigured) throw new Error('Breast clinical API is not configured. Start the FastAPI server and set NEXT_PUBLIC_API_URL.')
-      const result = await apiRequest<GradeResult>('/api/v1/analysis/breast-clinical-grade', {
+      const response = await fetch('/api/proxy/breast-clinical-grade', {
         method: 'POST',
-        body: {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           features: {
             'Age at Diagnosis': Number(gradeInput.age),
             'Tumor Size': Number(gradeInput.tumorSize),
@@ -134,9 +135,11 @@ export function BreastClinicalWorkspace() {
             'PR Status': gradeInput.pr,
             'HER2 Status': gradeInput.her2,
           },
-          },
-        timeoutMs: 60_000,
+        }),
       })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(typeof payload?.detail === 'string' ? payload.detail : `Request failed with status ${response.status}`)
+      const result = payload as GradeResult
       setGradeResult(result)
     } catch (error) {
       setGradeError(error instanceof Error ? error.message : 'Clinical grade analysis failed.')
@@ -226,8 +229,9 @@ export function BreastClinicalWorkspace() {
                 <label className="text-sm font-medium" htmlFor="grade-age">Age at Diagnosis
                   <input id="grade-age" className={`${inputClass} mt-1`} type="number" min={0} max={120} step="1" value={gradeInput.age} onChange={(event) => setGradeInput((current) => ({ ...current, age: event.target.value }))} required />
                 </label>
-                <label className="text-sm font-medium" htmlFor="grade-tumor-size">Tumor Size
+                <label className="text-sm font-medium" htmlFor="grade-tumor-size">Tumor Size (mm)
                   <input id="grade-tumor-size" className={`${inputClass} mt-1`} type="number" min={0} step="0.1" value={gradeInput.tumorSize} onChange={(event) => setGradeInput((current) => ({ ...current, tumorSize: event.target.value }))} required />
+                  <span className="mt-1 block text-xs font-normal text-muted-foreground">Enter millimetres (for example, 20 mm; convert 2 cm to 20 mm).</span>
                 </label>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
@@ -245,22 +249,26 @@ export function BreastClinicalWorkspace() {
           </Panel>
 
           <Panel className="flex flex-col">
-            <PanelHeader title="Model output" description="Prediction from the original Module 2 Random Forest pipeline." icon={ClipboardCheck} />
+            <PanelHeader title="Model output" description="Prediction from the class-balanced clinical research model." icon={ClipboardCheck} />
             <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
               {!gradeResult ? <p className="text-sm text-muted-foreground">Submit the five clinical features to display a grade prediction.</p> : <>
                 <div className="rounded-xl border border-border bg-elevated p-4"><p className="text-xs font-semibold uppercase tracking-wider text-wc-teal">Predicted histologic grade</p><p className="mt-2 text-2xl font-bold">{gradeResult.predictedGradeLabel}</p><p className="mt-1 text-sm text-muted-foreground">{gradeResult.message}</p></div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-border p-3"><p className="text-xs text-muted-foreground">Test accuracy</p><p className="mt-1 font-semibold">51.26%</p></div>
-                  <div className="rounded-xl border border-border p-3"><p className="text-xs text-muted-foreground">Test macro F1</p><p className="mt-1 font-semibold">0.4386</p></div>
-                  <div className="rounded-xl border border-border p-3"><p className="text-xs text-muted-foreground">CV macro F1</p><p className="mt-1 font-semibold">0.4899</p></div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                  <div className="rounded-xl border border-border p-3"><p className="text-xs text-muted-foreground">5-fold CV accuracy</p><p className="mt-1 font-semibold">{(gradeResult.evaluation.accuracy * 100).toFixed(1)}%</p></div>
+                  <div className="rounded-xl border border-border p-3"><p className="text-xs text-muted-foreground">CV macro F1</p><p className="mt-1 font-semibold">{gradeResult.evaluation.macroF1.toFixed(3)}</p></div>
+                  {[1, 2, 3].map((grade) => <div key={grade} className="rounded-xl border border-border p-3"><p className="text-xs text-muted-foreground">Grade {grade} CV recall</p><p className="mt-1 font-semibold">{((gradeResult.evaluation.recallByGrade[String(grade)] ?? 0) * 100).toFixed(1)}%</p></div>)}
                 </div>
+                <section className="space-y-3 rounded-xl border border-border p-4">
+                  <div><h3 className="text-sm font-semibold">Model vote share by grade</h3><p className="text-xs text-muted-foreground">Uncalibrated tree vote shares; not cancer probabilities or calibrated grade probabilities.</p></div>
+                  {gradeResult.gradeScores.map(({ grade, voteShare }) => <div key={grade} className="space-y-1"><div className="flex justify-between text-sm"><span>Grade {grade}</span><span className="tabular-nums">{(voteShare * 100).toFixed(1)}%</span></div><div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-wc-turquoise" style={{ width: `${Math.max(0, Math.min(1, voteShare)) * 100}%` }} /></div></div>)}
+                </section>
                 <dl className="grid gap-2 rounded-xl bg-muted/50 p-4 text-sm sm:grid-cols-2">
                   <div><dt className="text-xs text-muted-foreground">Model</dt><dd className="mt-1 font-medium">{gradeResult.model.name}</dd></div>
                   <div><dt className="text-xs text-muted-foreground">Architecture</dt><dd className="mt-1 font-medium">{gradeResult.model.architecture}</dd></div>
                   <div className="sm:col-span-2"><dt className="text-xs text-muted-foreground">Analysis ID</dt><dd className="mt-1 break-all font-mono">{gradeResult.analysisId}</dd></div>
                 </dl>
               </>}
-              <p className="mt-auto rounded-xl border border-wc-amber/30 bg-wc-amber/8 p-4 text-sm leading-relaxed text-muted-foreground">Grade 1/2/3 prediction among records similar to the training dataset. This model is not a cancer screening tool, does not provide cancer probability, and is not clinically validated.</p>
+              <p className="mt-auto rounded-xl border border-wc-amber/30 bg-wc-amber/8 p-4 text-sm leading-relaxed text-muted-foreground">Grade 1/2/3 research estimate among records similar to the training dataset. The model has modest validation performance, is not a cancer screening tool, does not provide cancer probability, and is not clinically validated.</p>
             </div>
           </Panel>
         </div>

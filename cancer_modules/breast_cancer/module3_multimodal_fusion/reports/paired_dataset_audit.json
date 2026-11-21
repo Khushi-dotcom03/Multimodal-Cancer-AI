@@ -1,0 +1,80 @@
+{
+  "dataset": "BrEaST / TCIA Breast-Lesions-USG",
+  "citation": "Pawlowska et al. (2024), Scientific Data 11, 148, DOI: 10.1038/s41597-024-02984-z; TCIA DOI: 10.7937/9WKK-Q141",
+  "license": "CC BY 4.0; cite the dataset and follow TCIA Data Usage Policy",
+  "sources": {
+    "images_url": "https://www.cancerimagingarchive.net/wp-content/uploads/BrEaST-Lesions_USG-images_and_masks-Dec-15-2023.zip",
+    "clinical_xlsx_url": "https://www.cancerimagingarchive.net/wp-content/uploads/BrEaST-Lesions-USG-clinical-data-Dec-15-2023.xlsx",
+    "image_zip_sha256": "c32e49cdfa54042e065582d0cb35978b5fc5e5b5e461b33bf773fb50cfdad355",
+    "clinical_xlsx_sha256": "89a8874496a6f1f93960390b963f7369b90f7e72ee08a738f2d17e37f5eff8bf"
+  },
+  "matching": {
+    "method": "official XLSX CaseID row + Image_filename + official mask filename columns",
+    "rows": 256,
+    "unique_case_ids": 256,
+    "unique_image_filenames": 256,
+    "all_images_matched": true,
+    "official_mask_references": 266,
+    "all_mask_references_matched": true,
+    "patient_group_key": "CaseID (one official case per patient in this release)"
+  },
+  "labels": {
+    "all_cases": {
+      "benign": 154,
+      "malignant": 98,
+      "normal": 4
+    },
+    "binary_training_cases": 252,
+    "normal_cases_excluded_from_binary_task": 4,
+    "binary_training_labels": {
+      "benign": 154,
+      "malignant": 98
+    },
+    "verification_by_label": {
+      "benign": {
+        "confirmed by biopsy": 99,
+        "confirmed by follow-up care": 55
+      },
+      "malignant": {
+        "confirmed by biopsy": 98
+      },
+      "normal": {
+        "not applicable": 4
+      }
+    }
+  },
+  "clinical_features": {
+    "included_at_prediction_time": [
+      "Age",
+      "Tissue_composition",
+      "Signs",
+      "Symptoms"
+    ],
+    "missing_or_not_available_counts": {
+      "Age": 42,
+      "Tissue_composition": 49,
+      "Signs": 46,
+      "Symptoms": 98
+    },
+    "excluded_leakage_fields": [
+      "BIRADS",
+      "Classification",
+      "Diagnosis",
+      "Interpretation",
+      "Verification"
+    ]
+  },
+  "data_quality": {
+    "duplicate_case_ids": 0,
+    "duplicate_image_refs": 0,
+    "duplicate_rows": 0,
+    "normal_cases_with_no_tumor_mask": 4,
+    "images_verified_readable": 256,
+    "sha256_duplicate_image_files": []
+  },
+  "limitations": [
+    "Only four normal cases are present; they are excluded from binary malignant-versus-benign model fitting and no normal-class performance is claimed.",
+    "The cohort is small and a single public dataset; internal cross-validation does not establish independent external validation.",
+    "The research score is not calibrated as a cancer probability and is not a diagnosis."
+  ]
+}

@@ -1,132 +1,60 @@
-# Breast Cancer Combined Analysis
+# Breast Cancer Combined Analysis (Module 3)
 
-## Objective and architecture
+Module 3 runs the existing Module 1 breast ultrasound inference and Module 2 histologic-grade inference independently. It displays their original kinds of outputs and explicitly reports that multimodal fusion is unavailable. It does not produce a combined prediction, score, or cancer probability.
 
-- evidence_viewer.py - a Streamlit page that runs both analyses separately, displays each result, and shows an experimental score when both outputs are usable.\r\n
-The components are:
+## Input and inference contract
 
-- `image_adapter.py` — validates and classifies an ultrasound image using Module 1 model files.
-- `clinical_adapter.py` — predicts a histologic grade using the saved Module 2 sklearn pipeline.
-- evidence_viewer.py - a Streamlit page that runs both analyses separately, displays each result, and shows an experimental score when both outputs are usable.\r\n
-There is no learned multimodal model. When both model outputs are available, the interface displays an experimental late-fusion research score: 80% of the image model's malignant-class score plus 20% of an ordinal histologic grade index (Grade 1 = 0, Grade 2 = 0.5, Grade 3 = 1). This fixed heuristic is uncalibrated; it is not a cancer probability, risk estimate, or diagnosis.
+- Image: JPG, JPEG, or PNG upload passed to the same `predict_ultrasound` function used by the Module 1 API. That adapter loads the existing Module 1 validator and classifier and preserves its preprocessing and result semantics.
+- Clinical: exactly `Age at Diagnosis`, `Tumor Size`, `ER Status`, `PR Status`, and `HER2 Status`, passed to the same `predict_clinical_grade` function used by the Module 2 API. That adapter loads the saved Module 2 pipeline and its fitted preprocessing unchanged.
+- Histologic grade is displayed only as grade. It is never mapped to cancer probability or used as a fusion weight.
 
-## Independent evidence streams
+The Module 3 endpoint is `POST /api/v1/analysis/breast-cancer-fusion`. It accepts multipart `file` plus `features` (JSON object using the five exact Module 2 feature names). Image and clinical inference run independently: a failed/invalid input on one side does not suppress the other side's output. The response's `fusionResult.status` is always `unavailable` until suitable paired, labelled training data is verified and a valid fusion model is trained and evaluated.
 
-The BUSI dataset and Module 2 clinical records are not patient-matched. Module 3 does not pair training records, and no patient-level multimodal training or joint validation has been performed. The displayed score is a fixed calculation over two separate outputs, not a learned fusion model. An image classification and a clinical grade prediction describe different model outputs and should be interpreted separately.
+## Dataset compatibility audit
 
-## Image adapter
+The local BrEaST / TCIA images and clinical XLSX were checked by official CaseID and Image_filename: 256 unique cases map to 256 images; all official mask references resolve. Labels include 154 benign, 98 malignant, and 4 normal cases. Its clinical columns include Age, Tissue composition, Signs, and Symptoms. It does **not** contain Tumor Size, ER Status, PR Status, or HER2 Status, and its Age field is not asserted equivalent to Module 2's Age at Diagnosis. Therefore BrEaST is not compatible with Module 2's five-input feature contract, even though it has linked ultrasound and benign/malignant labels.
 
-`image_adapter.py` loads the existing model files from Module 1 using paths relative to the adapter:
+The local BUSI image dataset has no linked records for Module 2 clinical features. The local Module 2 METABRIC records are not patient-linked to BUSI; their identifiers must not be joined to BUSI filenames. No compatible local dataset was found. Publicly described datasets such as BUSI-WHU advertise ultrasound, benign/malignant images, patient information, and an XLSX file, but the published metadata inspected does not verify that every one of the five required Module 2 fields is present and mapped per image. That candidate is not treated as compatible without a direct schema and identifier audit. A small published research cohort that reports ultrasound, age, lesion size, ER/PR/HER2, and benign/malignant cases is not enough by itself: a reproducible patient-level image-to-row dataset with access terms and complete records must be available before use.
 
-- `Breast_cancer/module1_image_analysis/busi_ultrasound_validator.keras`
-- `Breast_cancer/module1_image_analysis/busi_mobilenetv2.keras`
+Audit details are recorded in `reports/paired_feature_compatibility_audit.json`. The previous BrEaST experiment files and artifact are preserved on disk but are **not loaded or used** by the active Module 3 endpoint. Its metrics do not evaluate the Module 1 + Module 2 combination and must not be presented as such.
 
-The public function is:
+## Fusion status and limitations
 
-```python
-predict_ultrasound(image_path: str | Path) -> dict[str, Any]
-```
+There is currently no validated fusion method or trained fusion model for the exact Module 1/Module 2 inputs. Training cannot proceed without a dataset that has (1) ultrasound images, (2) all five clinical features available for those same patients, (3) reliable benign/malignant ground truth, and (4) identifiers that verify those links. No synthetic or cross-dataset pairings are allowed. The UI shows separate model outputs and a clear fusion-unavailable explanation. This is a research application, not a medical diagnostic tool.
 
-The adapter follows the Module 1 preprocessing and thresholds:
+## Run and test
 
-1. Open the input image, convert it to RGB, resize to 128×128, and apply MobileNetV2 `preprocess_input` for validation.
-2. Reject the image if the validator probability is below **0.50**.
-3. If it passes validation, resize to 224×224, apply MobileNetV2 `preprocess_input`, and classify in the order **Normal, Benign, Malignant**.
-4. Mark the result **Uncertain** when the highest class probability is below **0.60**.
-
-The returned dictionary contains `status`, `prediction`, `confidence`, `class_probabilities`, `validator_probability`, and `message`. Model files that are missing, invalid images, prediction errors, and TensorFlow import failures are returned with explanatory statuses. The adapter does not attempt to install TensorFlow or change system security settings.
-
-## Clinical grade adapter
-
-`clinical_adapter.py` loads `Breast_cancer/module2_clinical_analysis/clinical_grade_model.pkl` with joblib, using a path relative to the adapter file.
-
-The public function is:
-
-```python
-predict_clinical_grade(features: Mapping[str, Any]) -> dict[str, Any]
-```
-
-The input mapping must contain exactly these five feature names:
-
-- `Age at Diagnosis` — numeric, 0–120
-- `Tumor Size` — numeric, zero or greater
-- `ER Status` — `Positive` or `Negative`
-- `PR Status` — `Positive` or `Negative`
-- `HER2 Status` — `Positive` or `Negative`
-
-Missing values are passed to the saved pipeline for its fitted preprocessing steps; the adapter does not manually scale, impute, or encode features. The result dictionary contains `status`, `predicted_grade`, `grade_label`, and `message`. A successful output is **Grade 1**, **Grade 2**, or **Grade 3**. It is not a cancer diagnosis or probability.
-
-## Evidence Viewer
-
-- evidence_viewer.py - a Streamlit page that runs both analyses separately, displays each result, and shows an experimental score when both outputs are usable.\r\n
-- **Ultrasound Image Analysis:** accepts PNG, JPG, or JPEG; previews the upload; saves it temporarily for the image adapter; and displays status, prediction, confidence, validator probability, and class probabilities where available.
-- **Clinical Grade Analysis:** collects the five model features and displays the prediction status and grade.
-- **Experimental late-fusion score:** when both outputs are usable, computes `0.8 × malignant-class score + 0.2 × ordinal clinical grade index`. The grade index maps Grade 1 to 0, Grade 2 to 0.5, and Grade 3 to 1. A score at or above 0.5 is labeled **Cancer-like**; a lower score is labeled **Non-cancer-like**. These are heuristic display categories, not diagnoses.
-
-Image and clinical results are stored in separate Streamlit session-state variables. Running one analysis does not clear the other result. The image upload is written to a temporary file for inference and removed afterward.
-
-From the **outer repository root** in PowerShell, enter the project folder and launch the interface:
+From the repository root:
 
 ```powershell
-cd Multimodal-Cancer-AI
-- evidence_viewer.py - a Streamlit page that runs both analyses separately, displays each result, and shows an experimental score when both outputs are usable.\r\n```
-
-The clinical adapter requires pandas, NumPy, joblib, and a compatible scikit-learn installation (the shared requirements pin scikit-learn to 1.6.1). Image inference requires TensorFlow, NumPy, and Pillow. Both existing requirements files (`requirements.txt` and `Multimodal-Cancer-AI/requirements.txt`) include `tensorflow==2.21.0`.
-
-## Windows setup on another laptop
-
-1. Install Python 3.12.
-2. Open PowerShell in the outer repository root.
-3. Create and activate a virtual environment:
-
-```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+..\venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8002 --reload
+..\venv\Scripts\python.exe -m pytest tests/test_breast_module3.py -q
 ```
 
-4. Install the dependencies from the outer root:
+In another terminal:
 
 ```powershell
-python -m pip install -r requirements.txt
+cd frontend
+npm run dev
 ```
 
-5. Follow the launch instructions above to enter `Multimodal-Cancer-AI` and start the Evidence Viewer.
+Open `/breast-evidence-review`. The Module 3 Next.js proxy forwards to port 8002 by default; set `BREAST_MODULE3_API_URL` to use another backend address.
 
-Successful package installation does not guarantee that TensorFlow image inference will work on every Windows laptop. Test actual loading of both image models and image prediction on the target laptop. Windows Application Control blocks TensorFlow DLL loading in the current local environment; the recorded image predictions were tested in Google Colab, not on local Windows.
+## Dataset references
 
-## Recorded implementation checks
+- Pawłowska et al. (2024), “A Curated benchmark dataset for ultrasound based breast lesion analysis,” *Scientific Data* 11, 148. [Article DOI](https://doi.org/10.1038/s41597-024-02984-z); [TCIA collection](https://www.cancerimagingarchive.net/collection/breast-lesions-usg/), DOI 10.7937/9WKK-Q141. BrEaST data are CC BY 4.0; retain attribution and follow the [TCIA Data Usage Policy](https://www.cancerimagingarchive.net/data-usage-policies/).
+- Huang et al. (2025), [BUSI-WHU dataset](https://data.mendeley.com/datasets/k6cpmwybk3/3), DOI 10.17632/k6cpmwybk3.3, CC BY 4.0. Public metadata lists 927 ultrasound images and a patient-information XLSX; exact compatibility with the five Module 2 fields is not verified, so this dataset is not used here.
+# Local class-balanced clinical-grade candidate
 
-The following checks were reported for this implementation:
+To address the repeated Grade 3 output, the local Breast Clinical and Combined Analysis pages use a separate, versioned class-balanced candidate served on port `8003`. The original Module 2 model artifact and API remain untouched. The candidate uses the exact five existing clinical inputs and Grade 1/2/3 labels; it does not estimate cancer probability.
 
-| Check | Reported result |
-|---|---|
-| Clinical adapter local test | Grade 3; status `success` |
-| Image adapter in Google Colab — `benign (105).png` | Benign; confidence 99.05% |
-| Image adapter in Google Colab — `normal (7).png` | Normal; confidence 95.03% |
-| Evidence Viewer | Opened successfully |
-| Clinical panel prediction in Streamlit | Grade 3; status `success` |
-| Independent result retention | Clinical result remained visible after image prediction failed |
+The candidate was compared using five-fold stratified patient-grouped cross-validation. The dataset has 2,388 labeled records and 2,388 unique patient IDs. Mean accuracy was `0.5486`, macro F1 was `0.4592`, and mean recall was `0.2522` (Grade 1), `0.5113` (Grade 2), and `0.6319` (Grade 3). These retrospective results are modest and do not establish clinical validity. The class-balanced candidate reduces Grade 3 dominance; it does not guarantee a particular grade for any input.
 
-The image tests were run in Google Colab. **Local Windows image inference is not verified:** Windows Application Control blocks TensorFlow DLL loading in the local environment. The successful Colab results do not establish that TensorFlow image inference works on Windows.
+Recreate the candidate and report from the project root:
 
-## Clean Environment Portability Test (Windows)
+```powershell
+py cancer_modules/breast_cancer/module3_multimodal_fusion/train_balanced_grade_candidate.py
+py -3.14 -m uvicorn cancer_modules.breast_cancer.module3_multimodal_fusion.balanced_clinical_api:app --host 127.0.0.1 --port 8003
+```
 
-A fresh temporary Python 3.12 virtual environment was created and tested on the same Windows laptop. This test does not represent testing on another physical laptop.
-
-- Dependencies installed with `python -m pip install -r .\requirements.txt`.
-- `python -m pip check` reported: `No broken requirements found`.
-- TensorFlow imported successfully; version: `2.21.0`.
-- Module 3 image inference succeeded for `benign (6).png`:
-  - Prediction: **Benign**
-  - Confidence: **94.8%**
-  - Validator probability: **100.0%**
-  - Class probabilities: Normal **0.3%**, Benign **94.8%**, Malignant **4.9%**
-- Clinical inference succeeded: predicted histologic grade **Grade 3**.
-
-Only the listed benign image was tested for image inference in this clean environment; this test does not establish clean-environment results for all three image classes.
-## Limitations and intended use
-
-- BUSI images and clinical records are not patient-matched; there is no patient-level multimodal training or joint fusion validation.
-- The weighted late-fusion score is an uncalibrated research heuristic, not a cancer probability, personal risk percentage, or diagnostic conclusion. Its 50% threshold is only a display rule.
-- The clinical model predicts histologic grade only; the ordinal grade index used in the heuristic is not a clinical risk score and does not classify normal versus cancer.
-- This is an educational research prototype, not a medical diagnostic tool. It has not undergone external clinical validation. Independent external validation is required before any clinical use could be considered.
+The model is stored as `artifacts/clinical_grade_balanced_candidate.pkl`; evaluation details are in `reports/clinical_grade_balanced_candidate.json`. The API returns the existing Module 2 response fields and keeps its research-only disclaimer. The local frontend proxies Module 2 clinical submissions to this candidate and uses the same output in Module 3. Module 1 inference and both original Module 2 data/model artifacts are unchanged.
